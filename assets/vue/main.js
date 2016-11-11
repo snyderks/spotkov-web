@@ -1,3 +1,11 @@
+Vue.component('all-songs', {
+  template: '#song-template',
+  replace: true,
+  props: {
+    song: Object
+  }
+})
+
 var app = new Vue({
   el: '#app',
   data: {
@@ -15,8 +23,9 @@ var app = new Vue({
         console.log(data)
         inst.songs = data
       })
-      .fail(function() {
+      .fail(function(data) {
         console.log("error")
+        console.log(data)
       })
       .always(function() {
         console.log("complete")

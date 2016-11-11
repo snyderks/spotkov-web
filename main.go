@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"encoding/json"
 
 	"github.com/snyderks/spotkov/configRead"
+	"github.com/snyderks/spotkov/lastFm"
+	"github.com/snyderks/spotkov/markov"
 )
 
 type Page struct {
@@ -60,12 +63,16 @@ func setUpApiCalls() {
 }
 
 func lastFmHandler(w http.ResponseWriter, r *http.Request) {
-	//user := r.URL.Path[len("/api/getLastFMSongs/"):]
-	/*songs := lastFm.ReadLastFMSongs(user)
+	user := r.URL.Path[len("/api/getLastFMSongs/"):]
+	songs := lastFm.ReadLastFMSongs(user)
 	chain := markov.BuildChain(songs)
-	genSongs := markov.GenerateSongList(20, lastFm.Song{Artist: "Artist", Title: "Title"}, chain)
-	songsJSON, _ := json.Marshal(genSongs)
-	w.Write(songsJSON)*/
+	genSongs, err := markov.GenerateSongList(20, lastFm.Song{Artist: "Oasis", Title: "Wonderwall"}, chain)
+	if err == nil {
+		songsJSON, jsonErr := json.Marshal(genSongs)
+		if jsonErr == nil {
+			w.Write(songsJSON)
+		}
+	}
 }
 
 func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
