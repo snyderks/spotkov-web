@@ -1,6 +1,9 @@
 # Config file #
 config.json
 
+# Vue distributable (get your own at assets/vue/vue.js) #
+vue.js
+
 # Executables #
 *.com
 *.class
