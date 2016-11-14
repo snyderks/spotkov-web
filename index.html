@@ -3,17 +3,12 @@
 </head>
 <body>
   <div id="app">
+    <spotify-login></spotify-login>
     <button v-on:click="getSongs">Get Songs</button>
     <div>
       <all-songs v-for="song in songs" v-bind:song="song"></all-songs>
     </div>
   </div>
-
-  <script type="text/x-template" id="song-template">
-    <div>
-      <div>{{song.Title}} - {{song.Artist}}</div>
-    </div>
-  </script>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.js"
   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
