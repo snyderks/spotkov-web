@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"github.com/snyderks/spotkov/lastFm"
 	"github.com/snyderks/spotkov/markov"
 	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2"
 )
 
 // Page A basic page, with Body being an HTML doc.
@@ -20,10 +22,17 @@ type Page struct {
 	Body  []byte
 }
 
+type playlistRequest struct {
+	Token          oauth2.Token `json:"token"`
+	Length         int          `json:"length"`
+	Title          string       `json:"title"`
+	Artist         string       `json:"artist"`
+	LastFmUsername string       `json:"lastFmUsername"`
+}
+
 const configLocation = "config.json"
 const redirectURI = "http://localhost:8080/callback" // Put this in the config.
 
-var client *spotify.Client
 var config configRead.Config
 
 var (
@@ -34,6 +43,28 @@ var (
 	auth  = spotify.NewAuthenticator(redirectURI, scopes...)
 	state = "abc123" // TODO: Make this a guid or something.
 )
+
+// Initialize the client.
+func initializeClient(r *http.Request) (spotify.Client, error) {
+	var storedToken []byte
+	storedToken, err := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	if err != nil {
+		return spotify.Client{}, errors.New("Reading the token failed.")
+	}
+	token := oauth2.Token{}
+	err = json.Unmarshal(storedToken, &token)
+	if err != nil {
+		return spotify.Client{}, errors.New("Unmarshaling the token failed.")
+	}
+	client := auth.NewClient(&token)
+	return client, nil
+}
+
+func initializeClientWithToken(token oauth2.Token) (spotify.Client, error) {
+	client := auth.NewClient(&token)
+	return client, nil
+}
 
 // Path handlers
 func assetsHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +119,66 @@ func lastFmHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func spotifyUserHandler(w http.ResponseWriter, r *http.Request) {
+	client, err := initializeClient(r)
+	if err != nil {
+		fmt.Println("could not initialize the client", err)
+	}
+	user, err := client.CurrentUser()
+	if err != nil {
+		fmt.Println("executing the client data failed", err)
+		w.WriteHeader(500)
+		return
+	}
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		fmt.Println("marshaling the response failed", err)
+		w.WriteHeader(500)
+		return
+	}
+	w.Write(userJSON)
+	return
+}
+
+func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
+	var requestBody []byte
+	requestBody, err := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	if err != nil {
+		fmt.Println("couldn't read body")
+		w.WriteHeader(500)
+		return
+	}
+	req := playlistRequest{}
+	err = json.Unmarshal(requestBody, &req)
+	if err != nil {
+		fmt.Println("couldn't unmarshal", err)
+		w.WriteHeader(500)
+		return
+	}
+	_, err = initializeClientWithToken(req.Token)
+	if err != nil {
+		fmt.Println("couldn't get a client")
+		w.WriteHeader(500)
+		return
+	}
+	songs := lastFm.ReadLastFMSongs(req.LastFmUsername)
+	list, err := markov.GenerateSongList(req.Length,
+		lastFm.Song{Title: req.Title, Artist: req.Artist},
+		markov.BuildChain(songs))
+	if err != nil {
+		fmt.Println("couldn't make the song list")
+		w.WriteHeader(500)
+		return
+	}
+	listJSON, err := json.Marshal(list)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	w.Write(listJSON)
+}
+
 // Spotify handler
 func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	tok, err := auth.Token(state, r)
@@ -103,15 +194,19 @@ func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write(tokJSON)
 	}
-	http.Redirect(w, r, "http://localhost:8080/", http.StatusSeeOther)
+	http.Redirect(w, r, "http://localhost:8080/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
+}
+
+func spotifyAuthReceiver(w http.ResponseWriter, r *http.Request) {
+	p, err := loadPage("index")
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+	renderTemplate(w, "auth", p)
 }
 
 // Basic load, render functions
-func (p *Page) save() error {
-	filename := p.Title + ".html"
-	return ioutil.WriteFile(filename, p.Body, 0600) // 0600 = r/w for user
-}
-
 func loadPage(title string) (*Page, error) {
 	filename := title + ".html"
 	body, err := ioutil.ReadFile(filename)
@@ -131,6 +226,8 @@ func SetUpAPICalls() {
 	http.HandleFunc("/api/getLastFMSongs/", lastFmHandler)
 	http.HandleFunc("/api/spotifyLoginUrl/", spotifyLoginURLHandler)
 	http.HandleFunc("/callback", spotifyAuthHandler)
+	http.HandleFunc("/api/getSpotifyUser", spotifyUserHandler)
+	http.HandleFunc("/api/getPlaylist", createLastFmPlaylist)
 }
 
 // SetUpBasicHandlers Create handler functions for path handlers
@@ -138,6 +235,7 @@ func SetUpBasicHandlers() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/assets/", assetsHandler)
 	http.HandleFunc("/404/", notFoundHandler)
+	http.HandleFunc("/auth", spotifyAuthReceiver)
 }
 
 // Initial setup.

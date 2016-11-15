@@ -31,6 +31,50 @@ Vue.component('spotify-login', {
     }
   }
 })
+Vue.component('spotify-test', {
+  data: function () {
+    return {
+      userId: "",
+      songs: []
+    }
+  },
+  template: '<div><button class="btn" v-on:click="spotifyTest">Test Spotify Authentication</button>\
+             <br/><p v-for="song in songs" v-bind:song="song">{{song.Title}} - {{song.Artist}}</p></div>',
+  methods: {
+    spotifyTest: function () {
+      var comp = this
+      if (localStorage.getItem("access_token") !== undefined) {
+        var token = {}
+        token.access_token = localStorage.getItem("access_token")
+        token.expiry = localStorage.getItem("expiry")
+        token.refresh_token = localStorage.getItem("refresh_token")
+        token.token_type = localStorage.getItem("token_type")
+
+        var request = {}
+        request.length = 20
+        request.title = "Come To Me"
+        request.artist = "The Goo Goo Dolls"
+        request.token = token
+        request.lastFmUsername = "snyderks"
+        request = JSON.stringify(request)
+        $.ajax({
+        url: 'http://localhost:8080/api/getPlaylist',
+        type: 'POST',
+        dataType: 'json',
+        data: request
+      })
+      .done(function(data) {
+        comp.songs = data
+        console.log(data)
+      })
+      .fail(function(data) {
+        console.log("error")
+        console.log(data)
+      })
+      }
+    }
+  }
+})
 
 var app = new Vue({
   el: '#app',
