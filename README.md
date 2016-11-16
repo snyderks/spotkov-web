@@ -7,13 +7,15 @@
     - [ ] Metadata entry (playlist title, length, initial song)
     - [ ] Landing after generation
 
+    
 - [ ] Vue components for each page
     - [ ] Splash/login
     - [ ] Metadata entry
     - [ ] Landing after generation
-    
-- [ ] Routes for server
-    - [ ] Login to Spotify
-    - [ ] Last.FM list retrieval
-    - [ ] Playlist generation
-    - [ ] Saving Playlist
+
+
+- [x] Routes for server
+    - [x] Login to Spotify
+    - [x] Last.FM list retrieval
+    - [x] Playlist generation
+    - [x] Saving Playlist
