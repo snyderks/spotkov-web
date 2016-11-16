@@ -11,6 +11,7 @@ vue.js
 *.exe
 *.o
 *.so
+spotkov-web
 
 # File System Metadata #
 .DS_Store

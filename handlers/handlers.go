@@ -12,6 +12,7 @@ import (
 	"github.com/snyderks/spotkov/configRead"
 	"github.com/snyderks/spotkov/lastFm"
 	"github.com/snyderks/spotkov/markov"
+	"github.com/snyderks/spotkov/spotifyPlaylistGenerator"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 )
@@ -28,6 +29,12 @@ type playlistRequest struct {
 	Title          string       `json:"title"`
 	Artist         string       `json:"artist"`
 	LastFmUsername string       `json:"lastFmUsername"`
+}
+
+type spotifyPlaylistCreation struct {
+	Token        oauth2.Token  `json:"token"`
+	PlaylistName string        `json:"playlistName"`
+	Songs        []lastFm.Song `json:"songs"`
 }
 
 const configLocation = "config.json"
@@ -156,12 +163,6 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	_, err = initializeClientWithToken(req.Token)
-	if err != nil {
-		fmt.Println("couldn't get a client")
-		w.WriteHeader(500)
-		return
-	}
 	songs := lastFm.ReadLastFMSongs(req.LastFmUsername)
 	list, err := markov.GenerateSongList(req.Length,
 		lastFm.Song{Title: req.Title, Artist: req.Artist},
@@ -177,6 +178,37 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(listJSON)
+}
+
+func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
+	var requestBody []byte
+	requestBody, err := ioutil.ReadAll(r.Body)
+	r.Body.Close()
+	if err != nil {
+		fmt.Println("couldn't read body")
+		w.WriteHeader(500)
+		return
+	}
+	req := spotifyPlaylistCreation{}
+	err = json.Unmarshal(requestBody, &req)
+	if err != nil {
+		fmt.Println("couldn't unmarshal")
+		w.WriteHeader(500)
+		return
+	}
+	client, err := initializeClientWithToken(req.Token)
+	if err != nil {
+		fmt.Println("couldn't initialize client")
+		w.WriteHeader(500)
+		return
+	}
+	user, err := client.CurrentUser()
+	if err != nil {
+		fmt.Println("couldn't get the current user")
+		w.WriteHeader(500)
+		return
+	}
+	spotifyPlaylistGenerator.CreatePlaylist(req.Songs, &client, user.ID)
 }
 
 // Spotify handler
@@ -228,6 +260,7 @@ func SetUpAPICalls() {
 	http.HandleFunc("/callback", spotifyAuthHandler)
 	http.HandleFunc("/api/getSpotifyUser", spotifyUserHandler)
 	http.HandleFunc("/api/getPlaylist", createLastFmPlaylist)
+	http.HandleFunc("/api/createPlaylist", postPlaylistToSpotify)
 }
 
 // SetUpBasicHandlers Create handler functions for path handlers
