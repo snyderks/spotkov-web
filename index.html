@@ -3,7 +3,12 @@
 </head>
 <body>
   <div id="app">
-    <spotify-login></spotify-login>
+    <header class="header"><h1 class="header-text">Spotkov</h1></header>
+    <div class="main">
+      <div class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from your listening history.</div>
+      <div class="welcome-prompt">Get started by logging in to Spotify:</div>
+      <spotify-login></spotify-login>
+    </div>
     <button v-on:click="getSongs">Get Songs</button>
     <div>
       <all-songs v-for="song in songs" v-bind:song="song"></all-songs>
