@@ -31,20 +31,26 @@ Vue.component('spotify-login', {
     }
   }
 })
-Vue.component('spotify-test', {
-  data: function () {
-    return {
-      userId: "",
-      songs: []
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    songs: [],
+    songName: "",
+    artistName: "",
+    length: "20",
+    error: ""
+  },
+  computed: {
+    loggedIn: function () {
+      return localStorage.getItem("access_token") !== null
     }
   },
-  template: '<div><button class="btn" v-on:click="spotifyTest">Test Spotify Authentication</button>\
-             <br/><button class="btn" v-on:click="createPlaylist">Create List With These Songs</button>\
-             <br/><p v-for="song in songs" v-bind:song="song">{{song.Title}} - {{song.Artist}}</p></div>',
   methods: {
-    spotifyTest: function () {
+    getSongs: function () {
+      error = ""
       var comp = this
-      if (localStorage.getItem("access_token") !== undefined) {
+      if (localStorage.getItem("access_token") !== null) {
         var token = {}
         token.access_token = localStorage.getItem("access_token")
         token.expiry = localStorage.getItem("expiry")
@@ -52,9 +58,9 @@ Vue.component('spotify-test', {
         token.token_type = localStorage.getItem("token_type")
 
         var request = {}
-        request.length = 20
-        request.title = "Come To Me"
-        request.artist = "The Goo Goo Dolls"
+        request.length = comp.length
+        request.title = comp.songName
+        request.artist = comp.artistName
         request.token = token
         request.lastFmUsername = "snyderks"
         request = JSON.stringify(request)
@@ -71,11 +77,13 @@ Vue.component('spotify-test', {
       .fail(function(data) {
         console.log("error")
         console.log(data)
+        comp.error = "The song and artist couldn't be used. Try again."
       })
       }
     },
     createPlaylist: function () {
       /* TODO: Create a function to handle this. */
+      var comp = this
       var token = {}
       token.access_token = localStorage.getItem("access_token")
       token.expiry = localStorage.getItem("expiry")
@@ -90,39 +98,16 @@ Vue.component('spotify-test', {
       $.ajax({
         url: 'http://localhost:8080/api/createPlaylist',
         type: 'POST',
-        dataType: 'json',
         data: request
       })
-      .done(function (data) {
+      .done(function () {
+        comp.error = ""
         console.log("successfully posted to spotify")
-      })
-      .fail(function (data) {
-        console.log("failed to post to spotify")
-      })
-    }
-  }
-})
 
-var app = new Vue({
-  el: '#app',
-  data: {
-    songs: []
-  },
-  methods: {
-    getSongs: function() {
-      var inst = this
-      $.ajax({
-        url: 'http://localhost:8080/api/getLastFMSongs/snyderks',
-        type: 'GET',
-        dataType: 'json',
       })
-      .done(function(data) {
-        console.log(data)
-        inst.songs = data
-      })
-      .fail(function(data) {
-        console.log("error")
-        console.log(data)
+      .fail(function () {
+        comp.error = "Couldn't connect to Spotify. Please try again later."
+        console.log("failed to post to spotify")
       })
     }
   }

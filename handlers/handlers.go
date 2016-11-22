@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/snyderks/spotkov/configRead"
 	"github.com/snyderks/spotkov/lastFm"
@@ -25,7 +26,7 @@ type Page struct {
 
 type playlistRequest struct {
 	Token          oauth2.Token `json:"token"`
-	Length         int          `json:"length"`
+	Length         string       `json:"length"`
 	Title          string       `json:"title"`
 	Artist         string       `json:"artist"`
 	LastFmUsername string       `json:"lastFmUsername"`
@@ -164,7 +165,13 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	songs := lastFm.ReadLastFMSongs(req.LastFmUsername)
-	list, err := markov.GenerateSongList(req.Length,
+	length, err := strconv.Atoi(req.Length)
+	if err != nil {
+		fmt.Println("couldn't convert length to int")
+		w.WriteHeader(500)
+		return
+	}
+	list, err := markov.GenerateSongList(length,
 		lastFm.Song{Title: req.Title, Artist: req.Artist},
 		markov.BuildChain(songs))
 	if err != nil {
@@ -209,6 +216,7 @@ func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	spotifyPlaylistGenerator.CreatePlaylist(req.Songs, &client, user.ID)
+	w.WriteHeader(200)
 }
 
 // Spotify handler

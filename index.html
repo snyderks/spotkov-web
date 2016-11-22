@@ -12,8 +12,28 @@
     <button v-on:click="getSongs">Get Songs</button>
     <div>
       <all-songs v-for="song in songs" v-bind:song="song"></all-songs>
+    <div v-if="loggedIn">
+      <button class="btn" v-on:click="getSongs">Build Playlist</button>
+      <div>
+        <label for="song-name">Song</label>
+        <input type="text" name="song-name" v-model="songName" /><br />
+        <label for="artist-name">Artist</label>
+        <input type="text" name="artist-name" v-model="artistName" /><br />
+        <label for="length">Length</label>
+        <input type="range" name="length" v-model="length" min="1" max="200" step="1" />
+        <span>{{ length }} songs</span>
+        <div>
+          {{ error }}
+        </div>
+      </div>
+      <div>
+        <button class="btn" v-on:click="createPlaylist">Upload to Spotify</button>
+      </div>
+      <p v-for="song in songs" v-bind:song="song">{{song.Title}} - {{song.Artist}}
     </div>
-    <spotify-test></spotify-test>
+    <div v-else>
+      You are not currently logged in.
+    </div>
   </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.js"
