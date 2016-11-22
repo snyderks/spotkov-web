@@ -6,35 +6,45 @@
     <header class="header"><h1 class="header-text">Spotkov</h1></header>
     <div class="main">
       <div class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from your listening history.</div>
-      <div class="welcome-prompt">Get started by logging in to Spotify:</div>
-      <spotify-login></spotify-login>
+      <div v-if="!loggedIn">
+        <div class="welcome-prompt">Get started by logging in to Spotify:</div>
+        <spotify-login></spotify-login>
+      </div>
     </div>
-    <button v-on:click="getSongs">Get Songs</button>
     <div>
-      <all-songs v-for="song in songs" v-bind:song="song"></all-songs>
-    <div v-if="loggedIn">
-      <button class="btn" v-on:click="getSongs">Build Playlist</button>
-      <div>
-        <label for="song-name">Song</label>
-        <input type="text" name="song-name" v-model="songName" /><br />
-        <label for="artist-name">Artist</label>
-        <input type="text" name="artist-name" v-model="artistName" /><br />
-        <label for="length">Length</label>
-        <input type="range" name="length" v-model="length" min="1" max="200" step="1" />
-        <span>{{ length }} songs</span>
-        <div>
-          {{ error }}
+      <div v-if="loggedIn">
+        <div class="creation-form">
+          <span class="form-el">
+            <label class="text-input-label" for="song-name">Song</label>
+            <input type="text" class="text-input" name="song-name" v-model="songName" placeholder="Intro" />
+          </span>
+          <span class="form-el">
+            <label class="text-input-label" for="artist-name">Artist</label>
+            <input type="text" class="text-input" name="artist-name" v-model="artistName" placeholder="The xx" />
+          </span>
+          <span class="form-el slider-input">
+            <label for="length">Length: </label><span v-bind:songLabel="songLabel">{{ length }} {{ songLabel }}</span>
+            <input type="range" class="slider" name="length" v-model="length" min="1" max="200" step="1" />
+          </span>
+          <button class="btn" v-on:click="getSongs">Build Playlist</button>
+          <div class="spinner" v-bind:activity="activity" v-if="activity">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+          <div>
+            {{ error }}
+          </div>
         </div>
+        <div>
+          <button class="btn" v-if="playlistGenerated" v-on:click="createPlaylist">Upload to Spotify</button>
+        </div>
+        <p v-for="song in songs" v-bind:song="song">{{song.Title}} - {{song.Artist}}
       </div>
-      <div>
-        <button class="btn" v-on:click="createPlaylist">Upload to Spotify</button>
+      <div v-else>
+        You are not currently logged in.
       </div>
-      <p v-for="song in songs" v-bind:song="song">{{song.Title}} - {{song.Artist}}
     </div>
-    <div v-else>
-      You are not currently logged in.
-    </div>
-  </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.js"
   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="

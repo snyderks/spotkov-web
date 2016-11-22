@@ -1,8 +1,3 @@
-Vue.component('all-songs', {
-  props: ['song'],
-  template: '<div>{{song.Title}} - {{song.Artist}}</div>',
-  replace: true
-})
 Vue.component('spotify-login', {
   template: '<button class="btn login-btn" v-on:click="spotifyLogin">Login to Spotify</button>',
   replace: true,
@@ -39,15 +34,23 @@ var app = new Vue({
     songName: "",
     artistName: "",
     length: "20",
-    error: ""
+    error: "",
+    activity: false
   },
   computed: {
     loggedIn: function () {
       return localStorage.getItem("access_token") !== null
+    },
+    songLabel: function () {
+      return parseInt(this.length) === 1 ? "song" : "songs"
+    },
+    playlistGenerated: function () {
+      return this.songs.length > 0
     }
   },
   methods: {
     getSongs: function () {
+      activity = true
       error = ""
       var comp = this
       if (localStorage.getItem("access_token") !== null) {
@@ -78,6 +81,9 @@ var app = new Vue({
         console.log("error")
         console.log(data)
         comp.error = "The song and artist couldn't be used. Try again."
+      })
+      .always(function() {
+        activity = false
       })
       }
     },
