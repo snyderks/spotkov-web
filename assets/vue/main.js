@@ -31,8 +31,9 @@ var app = new Vue({
   el: '#app',
   data: {
     songs: [],
-    songName: "",
-    artistName: "",
+    songName: localStorage.getItem("songName") === null ? "" : localStorage.getItem("songName"),
+    artistName: localStorage.getItem("artistName") === null ? "" : localStorage.getItem("artistName"),
+    lastFMID: localStorage.getItem("lastFMID") === null ? "" : localStorage.getItem("lastFMID"),
     length: "20",
     error: "",
     activity: false
@@ -50,9 +51,35 @@ var app = new Vue({
   },
   methods: {
     getSongs: function () {
-      activity = true
-      error = ""
-      var comp = this
+      var valid = true;
+      if (this.songName.length === 0) {
+        $(".song-name").addClass("invalid")
+        valid = false
+      } else {
+        $(".song-name").removeClass("invalid")
+        localStorage.setItem("songName", this.songName)
+      }
+      if (this.artistName.length === 0) {
+        $(".artist-name").addClass("invalid")
+        valid = false
+      } else {
+        $(".artist-name").removeClass("invalid")
+        localStorage.setItem("artistName", this.artistName)
+      }
+      if (this.lastFMID.length === 0) {
+        $(".last-fm-id").addClass("invalid")
+        valid = false
+      } else {
+        $(".last-fm-id").removeClass("invalid")
+        localStorage.setItem("lastFMID", this.lastFMID)
+      }
+      if (valid === false) {
+        this.error = "Please fill out all fields"
+        return
+      }
+      this.error = ""
+      this.activity = true
+      var comp = this // pass this into local to carry into ajax return
       if (localStorage.getItem("access_token") !== null) {
         var token = {}
         token.access_token = localStorage.getItem("access_token")
@@ -65,26 +92,26 @@ var app = new Vue({
         request.title = comp.songName
         request.artist = comp.artistName
         request.token = token
-        request.lastFmUsername = "snyderks"
+        request.lastFmUsername = comp.lastFMID
         request = JSON.stringify(request)
         $.ajax({
-        url: 'http://localhost:8080/api/getPlaylist',
-        type: 'POST',
-        dataType: 'json',
-        data: request
-      })
-      .done(function(data) {
-        comp.songs = data
-        console.log(data)
-      })
-      .fail(function(data) {
-        console.log("error")
-        console.log(data)
-        comp.error = "The song and artist couldn't be used. Try again."
-      })
-      .always(function() {
-        activity = false
-      })
+          url: 'http://localhost:8080/api/getPlaylist',
+          type: 'POST',
+          dataType: 'json',
+          data: request
+        })
+        .done(function(data) {
+          comp.songs = data
+          console.log(data)
+        })
+        .fail(function(data) {
+          console.log("error")
+          console.log(data)
+          comp.error = "The song and artist couldn't be used. Try again."
+        })
+        .always(function() {
+          comp.activity = false
+        })
       }
     },
     createPlaylist: function () {

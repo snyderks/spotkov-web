@@ -1,4 +1,9 @@
 /* Main containers */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 body {
     height: 100%;
     padding: 0;
@@ -13,11 +18,23 @@ body {
     padding: 10px;
     background-color: #FFFFFF;
     color: #121212;
+    font-size: 1.6em;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -50px;
+}
+
+footer, .push {
+    height: 50px;
+}
+
+footer {
+    font-size: 1.6em;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 0;
-    height: 100%;
-    font-size: 1.6em;
+    color: #777;
 }
 
 header {
@@ -35,7 +52,11 @@ header {
     text-align: center;
 }
 
-/* UI Elements */
+/*
+---------------------------------
+   UI Elements
+---------------------------------
+*/
 .btn {
     background-color: transparent;
     color: #3374FF;
@@ -46,10 +67,17 @@ header {
     margin: 0.3em;
 }
 
-.btn:hover {
-    background-color: #3374FF;
+.btn:hover, .btn:focus {
+    background-color: #6093ff;
+    border-color: #6093ff;
     color: #FFF;
     cursor: pointer;
+    outline: none;
+}
+
+.btn:active {
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+  outline: none;
 }
 
 .creation-form {
@@ -57,9 +85,54 @@ header {
     margin-top: 1em;
 }
 
+.error {
+  text-align: center;
+  background-color: #f24343;
+  color: #FFF;
+  border-radius: 3px;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.footer-link {
+    color: #777;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: #3374FF;
+}
+
 .form-el {
     position: relative;
     display: inline-block;
+}
+
+.gen-btn {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.gen-songs {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.gen-song-row td {
+    padding: 7px;
+    vertical-align: middle;
+}
+
+.gen-song-row:nth-child(even) {
+    background-color: #EEE;
+}
+
+.github-icon {
+    margin-bottom: -0.1em;
 }
 
 .slider {
@@ -82,6 +155,7 @@ header {
 .text-input:focus {
     border-color: #9EC2F0;
     outline-color: transparent;
+    outline: none;
     box-shadow: none;
 }
 
@@ -91,6 +165,11 @@ header {
     top: 0px;
     padding: 0 10px;
     background-color: white;
+}
+
+/* Status changes */
+.invalid {
+    border-color: #f24343;
 }
 
 /* Generated styles below. Touch at your own risk. */
@@ -129,10 +208,10 @@ header {
 }
 
 @keyframes sk-bouncedelay {
-  0%, 80%, 100% { 
+  0%, 80%, 100% {
     -webkit-transform: scale(0);
     transform: scale(0);
-  } 40% { 
+  } 40% {
     -webkit-transform: scale(1.0);
     transform: scale(1.0);
   }

@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/snyderks/spotkov/configRead"
 	"github.com/snyderks/spotkov/lastFm"
@@ -78,10 +79,23 @@ func initializeClientWithToken(token oauth2.Token) (spotify.Client, error) {
 func assetsHandler(w http.ResponseWriter, r *http.Request) {
 	loc := r.URL.Path[len("/assets/"):]
 	f, err := ioutil.ReadFile("assets/" + loc)
+	var contentType string
+	if strings.HasSuffix(loc, ".css") {
+		contentType = "text/css"
+	} else if strings.HasSuffix(loc, ".png") {
+		contentType = "image/png"
+	} else if strings.HasSuffix(loc, ".js") {
+		contentType = "application/javascript"
+	} else if strings.HasSuffix(loc, ".svg") {
+		contentType = "image/svg+xml"
+	} else {
+		contentType = "text/plain"
+	}
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
+	w.Header().Add("Content-Type", contentType)
 	fmt.Fprintf(w, "%s", f)
 }
 
