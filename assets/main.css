@@ -22,11 +22,11 @@ body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -50px;
+    margin: 0 auto -3.5em;
 }
 
 footer, .push {
-    height: 50px;
+    height: 3.5em;
 }
 
 footer {
@@ -171,6 +171,12 @@ header {
 .invalid {
     border-color: #f24343;
 }
+
+/*
+---------------------------------
+   Media Changes
+---------------------------------
+*/
 
 /* Generated styles below. Touch at your own risk. */
 
