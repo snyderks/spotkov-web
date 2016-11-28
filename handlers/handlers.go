@@ -128,19 +128,6 @@ func spotifyLoginURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func lastFmHandler(w http.ResponseWriter, r *http.Request) {
-	user := r.URL.Path[len("/api/getLastFMSongs/"):]
-	songs := lastFm.ReadLastFMSongs(user)
-	chain := markov.BuildChain(songs)
-	genSongs, err := markov.GenerateSongList(20, lastFm.Song{Artist: "Oasis", Title: "Wonderwall"}, chain)
-	if err == nil {
-		songsJSON, jsonErr := json.Marshal(genSongs)
-		if jsonErr == nil {
-			w.Write(songsJSON)
-		}
-	}
-}
-
 func spotifyUserHandler(w http.ResponseWriter, r *http.Request) {
 	client, err := initializeClient(r)
 	if err != nil {
@@ -180,6 +167,13 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	songs := lastFm.ReadLastFMSongs(req.LastFmUsername)
 	length, err := strconv.Atoi(req.Length)
+	// These lines prevent a number from being too large or too small.
+	if length < 1 {
+		length = 1
+	}
+	if length > 200 {
+		length = 200
+	}
 	if err != nil {
 		fmt.Println("couldn't convert length to int")
 		w.WriteHeader(500)
@@ -277,7 +271,6 @@ func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
 
 // SetUpAPICalls Create handler functions for api calls
 func SetUpAPICalls() {
-	http.HandleFunc("/api/getLastFMSongs/", lastFmHandler)
 	http.HandleFunc("/api/spotifyLoginUrl/", spotifyLoginURLHandler)
 	http.HandleFunc("/callback", spotifyAuthHandler)
 	http.HandleFunc("/api/getSpotifyUser", spotifyUserHandler)
@@ -299,7 +292,7 @@ func init() {
 	var err error
 	config, err = configRead.ReadConfig(configLocation)
 	if err != nil {
-		panic("Couldn't read the config. Who wrote this horrific file?")
+		panic("Couldn't read the config. It's either not there or isn't in the correct format.")
 	}
 	auth.SetAuthInfo(config.SpotifyKey, config.SpotifySecret)
 }
