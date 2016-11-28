@@ -1,6 +1,6 @@
 # Spotkov - Web Server
 
-A web wrapper of (Spotkov)[https://github.com/snyderks/spotkov].
+A web wrapper of [Spotkov](https://github.com/snyderks/spotkov).
 For everyone who doesn't want to go and get her own API keys for Spotify and Last.FM but still wants generated playlists.
 
 # Roadmap
