@@ -150,6 +150,12 @@ func spotifyUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
+	// By accepting only POST requests, it prevents a possible XSS attack
+	// where somehow a separate server could get playlist data.
+	if r.Method != "POST" {
+		w.WriteHeader(500)
+		return
+	}
 	var requestBody []byte
 	requestBody, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
