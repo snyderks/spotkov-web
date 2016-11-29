@@ -1,6 +1,9 @@
 # Config file #
 config.json
 
+# Last.FM cache storage #
+*.gob
+
 # Vue distributable (get your own at assets/vue/vue.js) #
 vue.js
 
