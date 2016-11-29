@@ -31,7 +31,9 @@ footer, .push {
 
 footer {
     font-size: 1.6em;
-    max-width: 1000px;
+    max-width: 980px;
+    padding-left: 10px;
+    padding-right: 10px;
     margin-left: auto;
     margin-right: auto;
     color: #777;
@@ -122,8 +124,14 @@ header {
     border-spacing: 0;
 }
 
-.gen-song-row td {
-    padding: 7px;
+.gen-song-number {
+    white-space: nowrap;
+    text-align: right;
+    width: 1; /* Pushes the width of the number to be as small as possible */
+}
+
+.gen-songs td, .gen-songs th {
+    padding: 7px 15px;
     vertical-align: middle;
 }
 
@@ -167,6 +175,14 @@ header {
     background-color: white;
 }
 
+.th-right {
+    text-align: right;
+}
+
+.th-left {
+    text-align: left;
+}
+
 /* Status changes */
 .invalid {
     border-color: #f24343;
@@ -176,7 +192,7 @@ header {
 
 /* Spinny spinner */
 .spinner {
-  margin: 100px auto 0;
+  margin: 0 auto;
   width: 70px;
   text-align: center;
 }
@@ -184,7 +200,7 @@ header {
 .spinner > div {
   width: 18px;
   height: 18px;
-  background-color: #333;
+  background-color: #3374FF;
 
   border-radius: 100%;
   display: inline-block;

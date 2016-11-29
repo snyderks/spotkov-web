@@ -51,6 +51,7 @@ var app = new Vue({
   },
   methods: {
     getSongs: function () {
+      this.songs = [];
       var valid = true;
       if (this.songName.length === 0) {
         $(".song-name").addClass("invalid")
