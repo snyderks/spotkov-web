@@ -50,6 +50,15 @@ header {
     font-size: 5em;
 }
 
+hr {
+  border: none;
+  background-color: #DDD;
+  height: 1px;
+  width: 100%;
+  margin: 1em auto;
+
+}
+
 .main {
     text-align: center;
 }
@@ -181,6 +190,10 @@ header {
 
 .th-left {
     text-align: left;
+}
+
+.welcome-message {
+  font-weight: normal;
 }
 
 /* Status changes */

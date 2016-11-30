@@ -5,7 +5,7 @@
   <div id="app">
     <header class="header"><h1 class="header-text">Spotkov</h1></header>
     <div class="main">
-      <div class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from your listening history.</div>
+      <h3 class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from your listening history.</h3>
       <div v-show="!loggedIn">
         <div class="welcome-prompt">Get started by logging in to Spotify:</div>
         <spotify-login></spotify-login>
@@ -55,9 +55,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      <div v-else>
-        You are not currently logged in.
       </div>
     </div>
     <div class="push"></div> <!-- Pushes the body up above the footer -->

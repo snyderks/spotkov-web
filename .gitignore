@@ -4,6 +4,11 @@ config.json
 # Last.FM cache storage #
 *.gob
 
+# Certificates #
+*.pem
+*.p12
+*.cer
+
 # Vue distributable (get your own at assets/vue/vue.js) #
 vue.js
 
