@@ -16,7 +16,7 @@ Vue.component('spotify-login', {
   methods: {
     spotifyLogin: function () {
       $.ajax({
-        url: 'http://localhost:8080/api/spotifyLoginUrl',
+        url: 'api/spotifyLoginUrl',
         type: 'GET',
         dataType: 'json'
       })
@@ -110,7 +110,7 @@ var app = new Vue({
         request.lastFmUsername = comp.lastFMID
         request = JSON.stringify(request)
         $.ajax({
-          url: 'http://localhost:8080/api/getPlaylist',
+          url: 'api/getPlaylist',
           type: 'POST',
           dataType: 'json',
           data: request
@@ -142,7 +142,7 @@ var app = new Vue({
         request.songs = this.songs
         request = JSON.stringify(request)
         $.ajax({
-          url: 'http://localhost:8080/api/createPlaylist',
+          url: 'api/createPlaylist',
           type: 'POST',
           data: request
         })
