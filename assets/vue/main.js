@@ -48,6 +48,7 @@ var app = new Vue({
     lastFMID: localStorage.getItem("lastFMID") === null ? "" : localStorage.getItem("lastFMID"),
     length: "20",
     error: "",
+    message: "",
     activity: false
   },
   computed: {
@@ -109,6 +110,12 @@ var app = new Vue({
         request.token = token
         request.lastFmUsername = comp.lastFMID
         request = JSON.stringify(request)
+
+        // set a timer to trigger a message if the request is taking a while
+        var timer = $.timer(function() {
+          comp.message = "Your first playlist might take a while. Please be patient!";
+        })
+        timer.set({ time: 5000, autostart: true })
         $.ajax({
           url: 'api/getPlaylist',
           type: 'POST',
@@ -120,12 +127,15 @@ var app = new Vue({
           console.log(data)
         })
         .fail(function(data) {
-          console.log("error")
-          console.log(data)
-          comp.error = "The song and artist couldn't be used. Try again."
+          comp.error = data.responseText
+          if (comp.error === undefined || comp.error.length === 0) {
+            comp.error = "An unknown error occurred in processing your request. Please try again later."
+          }
         })
         .always(function() {
+          timer.stop()
           comp.activity = false
+          comp.message = ""
         })
       } else {
         this.error = "You're currently not logged in to Spotify. Log in and try again."

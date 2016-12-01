@@ -25,6 +25,6 @@ func main() {
 	handlers.SetUpAPICalls()
 	handlers.SetUpBasicHandlers()
 	fmt.Println("Successfully initialized!")
-	err = http.ListenAndServeTLS(config.TLSPort, "cert.pem", "key.pem", nil)
+	err = http.ListenAndServeTLS(config.TLSPort, config.CertPath, config.CertKeyPath, nil)
 	log.Fatal(err)
 }

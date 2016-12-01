@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/snyderks/spotkov-web/randString"
 	"github.com/snyderks/spotkov/configRead"
 	"github.com/snyderks/spotkov/lastFm"
 	"github.com/snyderks/spotkov/markov"
@@ -40,17 +41,17 @@ type spotifyPlaylistCreation struct {
 }
 
 const configLocation = "config.json"
-const redirectURI = "http://localhost:8080/callback" // Put this in the config.
 
+var redirectURI string
 var config configRead.Config
+var state string
 
 var (
 	scopes = []string{spotify.ScopeUserReadPrivate,
 		spotify.ScopePlaylistReadPrivate,
 		spotify.ScopePlaylistModifyPrivate,
 		spotify.ScopePlaylistModifyPublic}
-	auth  = spotify.NewAuthenticator(redirectURI, scopes...)
-	state = "abc123" // TODO: Make this a guid or something.
+	auth spotify.Authenticator
 )
 
 // Initialize the client.
@@ -118,6 +119,11 @@ func spotifyLoginURLHandler(w http.ResponseWriter, r *http.Request) {
 	type loginURL struct {
 		URL string `json:"URL"`
 	}
+	var err error
+	state, err = randString.GenerateRandomString(32)
+	if err != nil {
+		http.Error(w, "Failed to generate state. Something went wrong or something is vulnerable.", http.StatusInternalServerError)
+	}
 	url := loginURL{URL: auth.AuthURL(state)}
 	urlJSON, err := json.Marshal(url)
 	if err == nil {
@@ -153,25 +159,32 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	// By accepting only POST requests, it prevents a possible XSS attack
 	// where somehow a separate server could get playlist data.
 	if r.Method != "POST" {
-		w.WriteHeader(500)
+		w.WriteHeader(403)
+		return
+	}
+	maxBytes := 4000 // NOTHING should be sending 4KB requests to this.
+	if r.ContentLength > int64(maxBytes) {
 		return
 	}
 	var requestBody []byte
 	requestBody, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
 	if err != nil {
-		fmt.Println("couldn't read body")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	req := playlistRequest{}
 	err = json.Unmarshal(requestBody, &req)
 	if err != nil {
 		fmt.Println("couldn't unmarshal", err)
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
-	songs := lastFm.ReadLastFMSongs(req.LastFmUsername)
+	songs, err := lastFm.ReadLastFMSongs(req.LastFmUsername)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(err.Error()))
+	}
 	length, err := strconv.Atoi(req.Length)
 	// These lines prevent a number from being too large or too small.
 	if length < 1 {
@@ -182,7 +195,7 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		fmt.Println("couldn't convert length to int")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	list, err := markov.GenerateSongList(length,
@@ -191,6 +204,7 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("couldn't make the song list")
 		w.WriteHeader(500)
+		w.Write([]byte(err.Error()))
 		return
 	}
 	listJSON, err := json.Marshal(list)
@@ -202,31 +216,31 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 }
 
 func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
+	maxBytes := 50000 // More than 50KB is almost certainly either hacked over the length or just spam.
+	if r.ContentLength > int64(maxBytes) {
+		return
+	}
 	var requestBody []byte
 	requestBody, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
 	if err != nil {
-		fmt.Println("couldn't read body")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	req := spotifyPlaylistCreation{}
 	err = json.Unmarshal(requestBody, &req)
 	if err != nil {
-		fmt.Println("couldn't unmarshal")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	client, err := initializeClientWithToken(req.Token)
 	if err != nil {
-		fmt.Println("couldn't initialize client")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	user, err := client.CurrentUser()
 	if err != nil {
-		fmt.Println("couldn't get the current user")
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 	spotifyPlaylistGenerator.CreatePlaylist(req.Songs, &client, user.ID)
@@ -248,7 +262,7 @@ func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write(tokJSON)
 	}
-	http.Redirect(w, r, "http://localhost:8080/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
+	http.Redirect(w, r, "https://"+config.Hostname+config.TLSPort+"/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
 }
 
 func spotifyAuthReceiver(w http.ResponseWriter, r *http.Request) {
@@ -300,5 +314,7 @@ func init() {
 	if err != nil {
 		panic("Couldn't read the config. It's either not there or isn't in the correct format.")
 	}
+	redirectURI = config.AuthRedirectURL
+	auth = spotify.NewAuthenticator(redirectURI, scopes...)
 	auth.SetAuthInfo(config.SpotifyKey, config.SpotifySecret)
 }

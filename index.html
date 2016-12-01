@@ -34,6 +34,7 @@
             <input type="range" class="slider" name="length" v-model="length" min="1" max="200" step="1" />
           </span>
           <button class="btn" v-on:click="getSongs">Build Playlist</button>
+          <div v-bind:message="message" class="message">{{ message }}</div>
           <div class="spinner" v-bind:activity="activity" v-if="activity">
             <div class="bounce1"></div>
             <div class="bounce2"></div>
@@ -76,4 +77,5 @@
   crossorigin="anonymous">
 </script>
 <script src="assets/vue/vue.js"></script>
+<script src="assets/vue/jquery.timer.js"></script>
 <script src="assets/vue/main.js"></script>
