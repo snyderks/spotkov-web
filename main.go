@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/snyderks/spotkov-web/handlers"
 	"github.com/snyderks/spotkov/configRead"
@@ -20,11 +21,24 @@ func main() {
 			"https://"+config.Hostname+config.TLSPort+req.URL.String(),
 			http.StatusMovedPermanently)
 	})
-	go http.ListenAndServe(config.HTTPPort, mux)
+	svr := http.Server{
+		Addr:           config.HTTPPort,
+		Handler:        mux,
+		ReadTimeout:    5 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 8175, // if it's good enough for Apache, it's good enough for me
+	}
+	go svr.ListenAndServe()
 
 	handlers.SetUpAPICalls()
 	handlers.SetUpBasicHandlers()
+	svrTLS := http.Server{
+		Addr:           config.TLSPort,
+		ReadTimeout:    5 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 8175,
+	}
 	fmt.Println("Successfully initialized!")
-	err = http.ListenAndServeTLS(config.TLSPort, config.CertPath, config.CertKeyPath, nil)
+	err = svrTLS.ListenAndServeTLS(config.CertPath, config.CertKeyPath)
 	log.Fatal(err)
 }
