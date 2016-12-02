@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
-
-	"os"
 
 	"github.com/snyderks/spotkov-web/handlers"
 	"github.com/snyderks/spotkov/configRead"
@@ -18,15 +15,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	port := os.Getenv("PORT") // Read port in for compatibility with heroku
-	if len(port) > 1 {
-		config.HTTPPort = port
-	}
 	handlers.SetUpAPICalls()
 	handlers.SetUpBasicHandlers()
-	if !strings.Contains(config.HTTPPort, ":") {
-		config.HTTPPort = ":" + config.HTTPPort
-	}
 	svr := http.Server{
 		Addr:           config.HTTPPort,
 		ReadTimeout:    5 * time.Second,
