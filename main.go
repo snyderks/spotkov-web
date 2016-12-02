@@ -29,6 +29,6 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 8175, // if it's good enough for Apache, it's good enough for me
 	}
-	fmt.Println("Successfully initialized!")
+	fmt.Println("Serving", config.Hostname, "on", config.HTTPPort)
 	svr.ListenAndServe()
 }
