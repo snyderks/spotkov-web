@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"os"
-
 	"github.com/snyderks/spotkov-web/handlers"
 	"github.com/snyderks/spotkov/configRead"
 )
@@ -16,10 +14,6 @@ func main() {
 	config, err := configRead.ReadConfig("config.json")
 	if err != nil {
 		log.Fatal(err)
-	}
-	port := os.Getenv("PORT") // Read port in for compatibility with heroku
-	if len(port) > 1 {
-		config.HTTPPort = port
 	}
 	handlers.SetUpAPICalls()
 	handlers.SetUpBasicHandlers()
