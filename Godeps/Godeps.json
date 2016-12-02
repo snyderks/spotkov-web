@@ -5,23 +5,23 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/snyderks/spotkov/configRead",
-			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+			"Rev": "c2b50bc75ead1172869318a8225de22e5ac4e13e"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/lastFm",
-			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+			"Rev": "c2b50bc75ead1172869318a8225de22e5ac4e13e"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/markov",
-			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+			"Rev": "c2b50bc75ead1172869318a8225de22e5ac4e13e"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/spotifyPlaylistGenerator",
-			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+			"Rev": "c2b50bc75ead1172869318a8225de22e5ac4e13e"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/utils",
-			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+			"Rev": "c2b50bc75ead1172869318a8225de22e5ac4e13e"
 		},
 		{
 			"ImportPath": "github.com/zmb3/spotify",
