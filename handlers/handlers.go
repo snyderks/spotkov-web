@@ -266,12 +266,12 @@ func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func spotifyAuthReceiver(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage("index")
+	p, err := loadPage("auth")
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
-	renderTemplate(w, "auth", p)
+	fmt.Fprintf(w, "%s", p.Body)
 }
 
 // Basic load, render functions
