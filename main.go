@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"os"
@@ -23,6 +24,9 @@ func main() {
 	}
 	handlers.SetUpAPICalls()
 	handlers.SetUpBasicHandlers()
+	if !strings.Contains(config.HTTPPort, ":") {
+		config.HTTPPort = ":" + config.HTTPPort
+	}
 	svr := http.Server{
 		Addr:           config.HTTPPort,
 		ReadTimeout:    5 * time.Second,
