@@ -1,0 +1,43 @@
+{
+	"ImportPath": "github.com/snyderks/spotkov-web",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/snyderks/spotkov/configRead",
+			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+		},
+		{
+			"ImportPath": "github.com/snyderks/spotkov/lastFm",
+			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+		},
+		{
+			"ImportPath": "github.com/snyderks/spotkov/markov",
+			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+		},
+		{
+			"ImportPath": "github.com/snyderks/spotkov/spotifyPlaylistGenerator",
+			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+		},
+		{
+			"ImportPath": "github.com/snyderks/spotkov/utils",
+			"Rev": "69125be0214d1ea9a3da8fc86191cd0aedd61942"
+		},
+		{
+			"ImportPath": "github.com/zmb3/spotify",
+			"Rev": "7c329e568850060851710e4cfecc3aa70c56ddf7"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "8b4af36cd21a1f85a7484b49feb7c79363106d8e"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
+		}
+	]
+}
