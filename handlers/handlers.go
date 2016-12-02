@@ -262,7 +262,7 @@ func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write(tokJSON)
 	}
-	http.Redirect(w, r, "http://"+config.Hostname+config.HTTPPort+"/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
+	http.Redirect(w, r, "//"+config.Hostname+config.HTTPPort+"/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
 }
 
 func spotifyAuthReceiver(w http.ResponseWriter, r *http.Request) {
