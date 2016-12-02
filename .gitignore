@@ -13,7 +13,6 @@ config.json
 vue.js
 
 # Executables #
-*.com
 *.class
 *.dll
 *.exe
