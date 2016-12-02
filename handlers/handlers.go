@@ -250,7 +250,6 @@ func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
 // Spotify handler
 func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	tok, err := auth.Token(state, r)
-	fmt.Println("Woo!")
 	if err != nil {
 		http.Error(w, "Couldn't get token", http.StatusForbidden)
 	}
@@ -262,7 +261,7 @@ func spotifyAuthHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write(tokJSON)
 	}
-	http.Redirect(w, r, "//"+config.Hostname+config.HTTPPort+"/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
+	http.Redirect(w, r, "//"+config.Hostname+"/auth?token="+string(tokJSON), http.StatusPermanentRedirect)
 }
 
 func spotifyAuthReceiver(w http.ResponseWriter, r *http.Request) {
