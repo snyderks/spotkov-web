@@ -108,6 +108,10 @@ hr {
   margin-bottom: 10px;
 }
 
+.footer-left {
+    float: left;
+}
+
 .footer-link {
     color: #777;
     text-decoration: none;
@@ -115,6 +119,10 @@ hr {
 
 .footer-link:hover {
     color: #3374FF;
+}
+
+.footer-right {
+    float: right;
 }
 
 .form-el {
@@ -157,7 +165,8 @@ hr {
 }
 
 .slider-input {
-    width: 300px;
+    width: 90%;
+    max-width: 450px;
 }
 
 .text-input {
@@ -210,6 +219,25 @@ hr {
    Media Changes
 ---------------------------------
 */
+
+@media(max-width: 600px) {
+    .footer-left {
+        float: none;
+        text-align: center;
+        margin-bottom: -3px;
+    }
+    .footer-right {
+        float: none;
+        text-align: center;
+        margin-top: -3px;
+    }
+}
+
+@media(max-width: 350px) {
+    .header-text {
+        font-size: 4em;
+    }
+}
 
 /* Generated styles below. Touch at your own risk. */
 
