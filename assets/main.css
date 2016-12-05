@@ -192,6 +192,10 @@ hr {
     text-align: left;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 .welcome-message {
   font-weight: normal;
 }
