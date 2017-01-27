@@ -224,22 +224,31 @@ func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
 	requestBody, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
 	if err != nil {
+		print("ERROR (postPlaylistToSpotify): Could not read requestBody. Detail:", err.Error())
 		w.WriteHeader(400)
 		return
 	}
 	req := spotifyPlaylistCreation{}
 	err = json.Unmarshal(requestBody, &req)
 	if err != nil {
+		print("ERROR (postPlaylistToSpotify): Failed to parse requestBody. Detail:", err.Error())
 		w.WriteHeader(400)
 		return
 	}
 	client, err := initializeClientWithToken(req.Token)
 	if err != nil {
+		print("ERROR (postPlaylistToSpotify): Failed to initialize a client with the passed token. Detail:", err.Error())
 		w.WriteHeader(400)
 		return
 	}
 	user, err := client.CurrentUser()
+	// on failure, retry up to 10 times.
+	// reasons for this can be found at https://github.com/snyderks/spotkov-web/issues/7
+	for i := 0; err != nil && i < 10; i++ {
+		user, err = client.CurrentUser()
+	}
 	if err != nil {
+		print("ERROR (postPlaylistToSpotify): Could not retrieve the current user. Detail:", err.Error())
 		w.WriteHeader(400)
 		return
 	}
