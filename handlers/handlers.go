@@ -1,3 +1,6 @@
+// Package handlers provides endpoints for the web client to request song, post
+// playlists to Spotify, and authenticate the server to make requests
+// on its behalf.
 package handlers
 
 import (
@@ -20,12 +23,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Page A basic page, with Body being an HTML doc.
+// Page is a basic page, with Body being an HTML doc.
 type Page struct {
 	Title string
 	Body  []byte
 }
 
+// playlistRequest is the expected format for a client request to generate
+// a new playlist from Last.FM data.
 type playlistRequest struct {
 	Token          oauth2.Token `json:"token"`
 	Length         string       `json:"length"`
@@ -34,27 +39,44 @@ type playlistRequest struct {
 	LastFmUsername string       `json:"lastFmUsername"`
 }
 
+// spotifyPlaylistCreation is the expected format for a client request
+// to post a generated playlist to Spotify. Contains a token stored on
+// the client to authenticate.
 type spotifyPlaylistCreation struct {
 	Token        oauth2.Token  `json:"token"`
 	PlaylistName string        `json:"playlistName"`
 	Songs        []lastFm.Song `json:"songs"`
 }
 
+// configLocation is the location of the config
+// (should be in the same directory as the application)
 const configLocation = "config.json"
 
+// redirectURI is the web address that Spotify redirects to
+// on successful authentication. Server must be listening at this endpoint.
 var redirectURI string
+
+// config is the translated structure of the application's config file.
 var config configRead.Config
+
+// state is a randomly generated string appended to Spotify auth requests to
+// help flag possible MITM.
 var state string
 
 var (
+	// scopes is the required permissions given to the server when accessing
+	// the user's Spotify acct.
 	scopes = []string{spotify.ScopeUserReadPrivate,
 		spotify.ScopePlaylistReadPrivate,
 		spotify.ScopePlaylistModifyPrivate,
 		spotify.ScopePlaylistModifyPublic}
+	// auth is an instance of the authenticator that is used when first
+	// authorizing the application to a new user.
 	auth spotify.Authenticator
 )
 
-// Initialize the client.
+// initializeClient initializes a Spotify client using an existing token embedded
+// within a request.
 func initializeClient(r *http.Request) (spotify.Client, error) {
 	var storedToken []byte
 	storedToken, err := ioutil.ReadAll(r.Body)
@@ -71,12 +93,15 @@ func initializeClient(r *http.Request) (spotify.Client, error) {
 	return client, nil
 }
 
+// initializeClientWithToken initializes a Spotify client using an already-extracted token.
 func initializeClientWithToken(token oauth2.Token) (spotify.Client, error) {
 	client := auth.NewClient(&token)
 	return client, nil
 }
 
-// Path handlers
+// assetsHandler is a catch-all for any static assets that the page needs,
+// such as JS dependencies, images, CSS files, etc.
+// Meant to be passed to AddHandler in an http server.
 func assetsHandler(w http.ResponseWriter, r *http.Request) {
 	loc := r.URL.Path[len("/assets/"):]
 	f, err := ioutil.ReadFile("assets/" + loc)
@@ -100,6 +125,8 @@ func assetsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", f)
 }
 
+// indexHandler serves up the landing page for the site. Meant to be passed to AddHandler in
+// an http server.
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage("index")
 	if err != nil {
@@ -109,12 +136,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p.Body)
 }
 
+// notFoundHandler is for serving a 404 page. Meant to be passed to AddHandler in an http
+// server for a default.
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/404/"):]
 	renderTemplate(w, "notfound", &Page{Title: title})
 }
 
-// API calls (/api)
+// spotifyLoginURLHandler
 func spotifyLoginURLHandler(w http.ResponseWriter, r *http.Request) {
 	type loginURL struct {
 		URL string `json:"URL"`
@@ -122,7 +151,8 @@ func spotifyLoginURLHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	state, err = randString.GenerateRandomString(32)
 	if err != nil {
-		http.Error(w, "Failed to generate state. Something went wrong or something is vulnerable.", http.StatusInternalServerError)
+		http.Error(w, "Failed to generate state. Something went wrong "+
+			"or something is vulnerable.", http.StatusInternalServerError)
 	}
 	url := loginURL{URL: auth.AuthURL(state)}
 	urlJSON, err := json.Marshal(url)
@@ -155,6 +185,45 @@ func spotifyUserHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func openPlaylistRequest(r *http.Request) (playlistRequest, error) {
+	maxBytes := 4000 // NOTHING should be sending 4KB requests to this.
+	if r.ContentLength > int64(maxBytes) {
+		return playlistRequest{}, errors.New("Content length was over max. Possible test of a vulnerability.")
+	}
+	var requestBody []byte
+	requestBody, err := ioutil.ReadAll(r.Body)
+	err = r.Body.Close()
+	if err != nil {
+		return playlistRequest{}, errors.New("Failed to read the request body. Read error:" + err.Error())
+	}
+	req := playlistRequest{}
+	err = json.Unmarshal(requestBody, &req)
+	if err != nil {
+		fmt.Println("couldn't unmarshal", err)
+		return playlistRequest{}, errors.New("Couldn't parse the request. Unmarshal error: " + err.Error())
+	}
+	return req, nil
+}
+
+func getSongsForRequest(w http.ResponseWriter, req playlistRequest, songs []lastFm.Song) ([]lastFm.Song, error) {
+	length, err := strconv.Atoi(req.Length)
+	// These lines prevent a number from being too large or too small.
+	if err != nil {
+		fmt.Println("couldn't convert length to int")
+		w.WriteHeader(400)
+		return nil, errors.New("Length passed was invalid. Atoi error: " + err.Error())
+	}
+	if length < 1 {
+		length = 1
+	}
+	if length > 200 {
+		length = 200
+	}
+	return markov.GenerateSongList(length,
+		lastFm.Song{Title: req.Title, Artist: req.Artist},
+		markov.BuildChain(songs))
+}
+
 func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	// By accepting only POST requests, it prevents a possible XSS attack
 	// where somehow a separate server could get playlist data.
@@ -166,41 +235,21 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	if r.ContentLength > int64(maxBytes) {
 		return
 	}
-	var requestBody []byte
-	requestBody, err := ioutil.ReadAll(r.Body)
-	r.Body.Close()
+	req, err := openPlaylistRequest(r)
 	if err != nil {
+		print("Couldn't open the playlist request. Error: ", err.Error())
 		w.WriteHeader(400)
-		return
-	}
-	req := playlistRequest{}
-	err = json.Unmarshal(requestBody, &req)
-	if err != nil {
-		fmt.Println("couldn't unmarshal", err)
-		w.WriteHeader(400)
-		return
 	}
 	songs, err := lastFm.ReadLastFMSongs(req.LastFmUsername)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			print("Couldn't write the error back to the client. Base error: ", err.Error())
+		}
 	}
-	length, err := strconv.Atoi(req.Length)
-	// These lines prevent a number from being too large or too small.
-	if length < 1 {
-		length = 1
-	}
-	if length > 200 {
-		length = 200
-	}
-	if err != nil {
-		fmt.Println("couldn't convert length to int")
-		w.WriteHeader(400)
-		return
-	}
-	list, err := markov.GenerateSongList(length,
-		lastFm.Song{Title: req.Title, Artist: req.Artist},
-		markov.BuildChain(songs))
+
+	list, err := getSongsForRequest(w, req, songs)
 	if err != nil {
 		fmt.Println("couldn't make the song list")
 		w.WriteHeader(500)
