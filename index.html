@@ -4,7 +4,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spotkov</title>
   <meta name="description" content="A playlist generator for Spotify using your song history in Last.FM." />
-  <link rel="stylesheet" type="text/css" href="assets/main.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+
+  
 </head>
 <body>
   <div id="app">
@@ -55,13 +57,13 @@
           <button class="btn gen-btn" v-if="playlistGenerated" v-on:click="createPlaylist">Upload to Spotify</button>
         <table class="gen-songs" v-bind:songs="songs" v-if="songs.length > 0">
           <thead>
-            <th class="th-right">#</th>
+            <th></th>
             <th class="th-left">Song</th>
             <th class="th-left">Artist</th>
           </thead>
-          <tbody>
+          <tbody id="playlist">
             <tr class="gen-song-row" v-for="(song, index) in songs" v-bind:song="song">
-              <td class="gen-song-number">{{index + 1}}</td>
+              <td class="gen-song-delete-cell" v-on:click="deleteSong(index)"><img class="gen-song-delete" src="assets/img/delete.svg"></td>
               <td class="gen-song-title">{{song.Title}}</td>
               <td class="gen-song-artist">{{song.Artist}}</td>
             </tr>
@@ -85,6 +87,7 @@
   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
   crossorigin="anonymous">
 </script>
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.min.js"></script>
 <script src="assets/vue/jquery.timer.js"></script>
+<script src="https://unpkg.com/sortablejs@1.4.2"></script>
 <script src="assets/vue/main.js"></script>

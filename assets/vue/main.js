@@ -60,7 +60,7 @@ var app = new Vue({
     },
     playlistGenerated: function () {
       return this.songs.length > 0
-    }
+    },
   },
   methods: {
     getSongs: function () {
@@ -137,9 +137,18 @@ var app = new Vue({
           comp.activity = false
           comp.message = ""
         })
+        
       } else {
         this.error = "You're currently not logged in to Spotify. Log in and try again."
       }
+    },
+    deleteSong: function(songIndex) {
+      this.songs.splice(songIndex, 1)
+    },
+    moveSong: function (from, to) {
+      var toMove = this.songs[from]
+      this.songs.splice(from, 1)
+      this.songs.splice(to, 0, toMove)
     },
     createPlaylist: function () {
       this.activity = true
@@ -173,3 +182,17 @@ var app = new Vue({
     }
   }
 })
+
+app.$watch(
+  function () {
+    return app.playlistGenerated && document.getElementById("playlist") !== null
+  },
+  function (newVal, oldVal) {
+    sortable = Sortable.create(document.getElementById("playlist"), {
+      animation: 150, // animation speed for movement
+      onEnd: function (/**Event*/evt) {
+        app.moveSong(evt.oldIndex, evt.newIndex);
+    }
+    })
+  }
+)

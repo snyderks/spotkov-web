@@ -141,6 +141,15 @@ hr {
     border-spacing: 0;
 }
 
+.gen-song-delete {
+    height: 1.2em;
+    width: 1.2em;
+}
+
+.gen-song-delete-cell {
+    text-align: center;
+}
+
 .gen-song-number {
     white-space: nowrap;
     text-align: right;
