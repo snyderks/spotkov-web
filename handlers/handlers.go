@@ -219,7 +219,7 @@ func getSongsForRequest(w http.ResponseWriter, req playlistRequest, songs []last
 	if length > 200 {
 		length = 200
 	}
-	return markov.GenerateSongList(length,
+	return markov.GenerateSongList(length, 1,
 		lastFm.Song{Title: req.Title, Artist: req.Artist},
 		markov.BuildChain(songs))
 }
