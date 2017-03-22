@@ -28,3 +28,7 @@ spotkov-web
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# VSCode things #
+.vscode
+debug*
