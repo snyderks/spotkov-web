@@ -180,7 +180,7 @@ func SetUpBasicHandlers() {
 func init() {
 	fmt.Println("Handlers initializing")
 	var err error
-	config, err = configRead.ReadConfig(configLocation)
+	config, err = configRead.Read(configLocation)
 	if err != nil {
 		panic("Couldn't read the config. It's either not there or isn't in the correct format.")
 	}
