@@ -23,6 +23,14 @@
 			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		},
 		{
+			"ImportPath": "github.com/snyderks/spotkov/tools",
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
+		},
+		{
+			"ImportPath": "github.com/xrash/smetrics",
+			"Rev": "a3153f7040e90324c58c6287535e26a0ac5c1cc1"
+		},
+		{
 			"ImportPath": "github.com/zmb3/spotify",
 			"Rev": "7c329e568850060851710e4cfecc3aa70c56ddf7"
 		},
@@ -37,10 +45,6 @@
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
 			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
-		},
-		{
-			"ImportPath": "github.com/snyderks/spotkov/tools",
-			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		}
 	]
 }
