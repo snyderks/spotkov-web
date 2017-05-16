@@ -46,6 +46,7 @@ var app = new Vue({
     songName: localStorage.getItem("songName") === null ? "" : localStorage.getItem("songName"),
     artistName: localStorage.getItem("artistName") === null ? "" : localStorage.getItem("artistName"),
     lastFMID: localStorage.getItem("lastFMID") === null ? "" : localStorage.getItem("lastFMID"),
+    suggestions: [],
     length: "20",
     error: "",
     message: "",
@@ -186,6 +187,62 @@ var app = new Vue({
         })
       } else {
         this.error = "You're currently not logged in to Spotify. Log in and try again."
+      }
+    },
+    autocompleteSong: function () {
+      var comp = this
+      var request = {
+        s: comp.songName,
+        userID: comp.lastFMID,
+      }
+      request = JSON.stringify(request)
+
+      $.ajax({
+        url: 'api/songMatches',
+        type: 'POST',
+        dataType: 'json',
+        data: request
+      })
+      .done(function (data) {
+        comp.suggestions = data.matches
+      });
+    },
+    autocompleteArtist: function () {
+      var comp = this
+      var request = {
+        s: comp.artistName,
+        userID: comp.lastFMID,
+      }
+      request = JSON.stringify(request)
+
+      $.ajax({
+        url: 'api/songMatches',
+        type: 'POST',
+        dataType: 'json',
+        data: request
+      })
+      .done(function (data) {
+        comp.suggestions = data.matches
+      });
+    },
+    syncSuggestions: function (useTitle, event) {
+      console.log(event)
+      var s = event.target.value
+      var match = null
+      for (var item in this.suggestions) {
+        if (useTitle && s === this.suggestions[item].Title + 
+                        " - " + 
+                        this.suggestions[item].Artist || 
+            !useTitle && s === this.suggestions[item].Artist + 
+                         " - " + 
+                         this.suggestions[item].Title) {
+          match = this.suggestions[item]
+          break
+        }
+      }
+      if (match != null) {
+        this.songName = match.Title
+        this.artistName = match.Artist
       }
     }
   }

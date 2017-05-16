@@ -166,6 +166,8 @@ func SetUpAPICalls() {
 	http.HandleFunc("/api/getSpotifyUser", spotifyUserHandler)
 	http.HandleFunc("/api/getPlaylist", createLastFmPlaylist)
 	http.HandleFunc("/api/createPlaylist", postPlaylistToSpotify)
+	http.HandleFunc("/api/songMatches", autocompleteSongHandler)
+	http.HandleFunc("/api/artistMatches", autocompleteArtistHandler)
 }
 
 // SetUpBasicHandlers creates handler functions for path handlers

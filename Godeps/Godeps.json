@@ -1,46 +1,46 @@
 {
 	"ImportPath": "github.com/snyderks/spotkov-web",
 	"GoVersion": "go1.7",
-	"GodepVersion": "v79",
+	"GodepVersion": "v75",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/snyderks/spotkov/configRead",
-			"Rev": "aafe22c5c0737c421884be701c0c17ba922e7d01"
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/lastFm",
-			"Rev": "aafe22c5c0737c421884be701c0c17ba922e7d01"
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/markov",
-			"Rev": "aafe22c5c0737c421884be701c0c17ba922e7d01"
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/spotifyPlaylistGenerator",
-			"Rev": "aafe22c5c0737c421884be701c0c17ba922e7d01"
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		},
 		{
 			"ImportPath": "github.com/zmb3/spotify",
-			"Rev": "903cfb89af2a8f0319efff010c365adf1eede8c2"
+			"Rev": "7c329e568850060851710e4cfecc3aa70c56ddf7"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "e57319ce2bbbdc638169d4756554fbaedc805399"
+			"Rev": "8b4af36cd21a1f85a7484b49feb7c79363106d8e"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
-			"Rev": "d5040cddfc0da40b408c9a1da4728662435176a9"
+			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
-			"Rev": "d5040cddfc0da40b408c9a1da4728662435176a9"
+			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/tools",
-			"Rev": "aafe22c5c0737c421884be701c0c17ba922e7d01"
+			"Rev": "fadbf44cbd4dc69b7b6573e8f17c258fadcb7415"
 		}
 	]
 }
