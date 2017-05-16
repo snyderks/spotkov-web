@@ -45,13 +45,14 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			print("Couldn't write the error back to the client. Base error: ", err.Error())
 		}
+		return
 	}
 
 	list, err := getSongsForRequest(w, req, songs)
 	if err != nil {
 		fmt.Println("couldn't make the song list")
 		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte("Couldn't create the playlist. Try again."))
 		return
 	}
 	listJSON, err := json.Marshal(list)
