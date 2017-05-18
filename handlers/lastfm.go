@@ -38,7 +38,7 @@ func createLastFmPlaylist(w http.ResponseWriter, r *http.Request) {
 	songs, err := lastFm.ReadLastFMSongs(req.LastFmUsername)
 	if err != nil {
 		w.WriteHeader(500)
-		e, err := json.Marshal(friendlyError{err.Error()})
+		e, err := json.Marshal([]byte("An error occurred. Please try again later."))
 		if err == nil {
 			w.Write(e)
 		}
