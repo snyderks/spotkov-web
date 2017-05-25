@@ -21,7 +21,6 @@ Vue.component('spotify-login', {
         dataType: 'json'
       })
       .done(function(data) {
-        console.log(data)
         if (data.URL !== undefined) {
           if (data.URL.match(/https:\/\/accounts.spotify.com\/authorize?/) != null) {
             window.location = data.URL
@@ -30,10 +29,6 @@ Vue.component('spotify-login', {
           fail()
         }
 
-      })
-      .fail(function(data) {
-        console.log("error")
-        console.log(data)
       })
     }
   }
@@ -47,7 +42,7 @@ var app = new Vue({
     artistName: localStorage.getItem("artistName") === null ? "" : localStorage.getItem("artistName"),
     lastFMID: localStorage.getItem("lastFMID") === null ? "" : localStorage.getItem("lastFMID"),
     suggestions: [],
-    length: "20",
+    length: localStorage.getItem("length") === null ? "20" : localStorage.getItem("length"),
     error: "",
     message: "",
     activity: false
@@ -93,6 +88,8 @@ var app = new Vue({
         localStorage.setItem("lastFMID", this.lastFMID)
       }
 
+      localStorage.setItem("length", this.length)
+
       if (valid === false) {
         this.error = "Please fill out all fields"
         return
@@ -116,7 +113,7 @@ var app = new Vue({
         var timer = $.timer(function() {
           comp.message = "Your first playlist might take a while. Please be patient!";
         })
-        timer.set({ time: 5000, autostart: true })
+        timer.set({ time: 6000, autostart: true })
         $.ajax({
           url: 'api/getPlaylist',
           type: 'POST',
@@ -125,7 +122,6 @@ var app = new Vue({
         })
         .done(function(data) {
           comp.songs = data
-          console.log(data)
         })
         .fail(function(data) {
           if (data.error !== undefined && data.error !== null) {
@@ -149,11 +145,6 @@ var app = new Vue({
     },
     deleteSong: function(songIndex) {
       this.songs.splice(songIndex, 1)
-    },
-    moveSong: function (from, to) {
-      var toMove = this.songs[from]
-      this.songs.splice(from, 1)
-      this.songs.splice(to, 0, toMove)
     },
     createPlaylist: function () {
       this.activity = true
@@ -191,42 +182,47 @@ var app = new Vue({
     },
     autocompleteSong: function () {
       var comp = this
-      var request = {
-        s: comp.songName,
-        userID: comp.lastFMID,
-      }
-      request = JSON.stringify(request)
+      // don't do anything if the user doesn't have an ID entered
+      if (comp.lastFMID != "") {
+        var request = {
+          s: comp.songName,
+          userID: comp.lastFMID,
+        }
+        request = JSON.stringify(request)
 
-      $.ajax({
-        url: 'api/songMatches',
-        type: 'POST',
-        dataType: 'json',
-        data: request
-      })
-      .done(function (data) {
-        comp.suggestions = data.matches
-      });
+        $.ajax({
+          url: 'api/songMatches',
+          type: 'POST',
+          dataType: 'json',
+          data: request
+        })
+        .done(function (data) {
+          comp.suggestions = data.matches
+        });
+      }
     },
     autocompleteArtist: function () {
       var comp = this
-      var request = {
-        s: comp.artistName,
-        userID: comp.lastFMID,
-      }
-      request = JSON.stringify(request)
+      // don't do anything if the user doesn't have an ID entered
+      if (comp.lastFMID != "") {
+        var request = {
+          s: comp.artistName,
+          userID: comp.lastFMID,
+        }
+        request = JSON.stringify(request)
 
-      $.ajax({
-        url: 'api/songMatches',
-        type: 'POST',
-        dataType: 'json',
-        data: request
-      })
-      .done(function (data) {
-        comp.suggestions = data.matches
-      });
+        $.ajax({
+          url: 'api/songMatches',
+          type: 'POST',
+          dataType: 'json',
+          data: request
+        })
+        .done(function (data) {
+          comp.suggestions = data.matches
+        });
+      }
     },
     syncSuggestions: function (useTitle, event) {
-      console.log(event)
       var s = event.target.value
       var match = null
       for (var item in this.suggestions) {
@@ -244,20 +240,9 @@ var app = new Vue({
         this.songName = match.Title
         this.artistName = match.Artist
       }
+    },
+    toggleInstructAnswer: function() {
+      $(".instruct-answer").fadeToggle(500)
     }
   }
 })
-
-app.$watch(
-  function () {
-    return app.playlistGenerated && document.getElementById("playlist") !== null
-  },
-  function (newVal, oldVal) {
-    sortable = Sortable.create(document.getElementById("playlist"), {
-      animation: 150, // animation speed for movement
-      onEnd: function (/**Event*/evt) {
-        app.moveSong(evt.oldIndex, evt.newIndex);
-    }
-    })
-  }
-)

@@ -91,6 +91,12 @@ hr {
   outline: none;
 }
 
+.centered-list {
+    margin: 0 auto;
+    text-align: left; 
+    display: inline-block;
+}
+
 .creation-form {
     text-align: center;
     margin-top: 1em;
@@ -167,6 +173,14 @@ hr {
 
 .github-icon {
     margin-bottom: -0.1em;
+}
+
+.instructions {
+    text-align: center;
+}
+
+.instruct-answer {
+    display: none;
 }
 
 .slider {

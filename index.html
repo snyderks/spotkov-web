@@ -42,7 +42,7 @@
               </datalist>
             </span>
             <span class="form-el">
-              <label class="text-input-label" for="last-fm-id">Last.FM User</label>
+              <label class="text-input-label" for="last-fm-id">Last.FM Username</label>
               <input type="text" class="text-input last-fm-id" name="last-fm-id" v-model="lastFMID" />
             </span>
           </div>
@@ -78,6 +78,21 @@
           </tbody>
         </table>
       </div>
+      <div class="instructions" v-if="!playlistGenerated">
+        <div>
+          <button class="btn" v-on:click="toggleInstructAnswer">How does this work?</button>
+        </div>
+        <div class="instruct-answer">
+          You can use Spotkov if you <a href="https://support.spotify.com/us/using_spotify/share_music/scrobble-to-last-fm/">scrobble</a>
+          your Spotify playback to Last.fm. 
+          <ol class="centered-list">
+            <li>Log in to Spotify above.</li>
+            <li>Next, enter a song title and artist to start with and your Last.fm username.</li>
+            <li>Click build playlist. If you don't like it, remove some songs or generate it again.</li>
+            <li>When you're ready, click Upload to Spotify.</li>
+          </ol>
+        </div>
+      </div>
     </div>
     <div class="push"></div> <!-- Pushes the body up above the footer -->
   </div>
@@ -97,5 +112,4 @@
 </script>
 <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
 <script src="assets/vue/jquery.timer.js"></script>
-<script src="https://unpkg.com/sortablejs@1.4.2"></script>
 <script src="assets/vue/main.js"></script>

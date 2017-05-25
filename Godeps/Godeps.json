@@ -38,23 +38,23 @@
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/configRead",
-			"Rev": "dd764536dbde2d97d0ae7550771c5718f02fd645"
+			"Rev": "589611106e7b0401825dff56cf64cfe76554bd51"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/lastFm",
-			"Rev": "dd764536dbde2d97d0ae7550771c5718f02fd645"
+			"Rev": "589611106e7b0401825dff56cf64cfe76554bd51"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/markov",
-			"Rev": "dd764536dbde2d97d0ae7550771c5718f02fd645"
+			"Rev": "589611106e7b0401825dff56cf64cfe76554bd51"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/spotifyPlaylistGenerator",
-			"Rev": "dd764536dbde2d97d0ae7550771c5718f02fd645"
+			"Rev": "589611106e7b0401825dff56cf64cfe76554bd51"
 		},
 		{
 			"ImportPath": "github.com/snyderks/spotkov/tools",
-			"Rev": "dd764536dbde2d97d0ae7550771c5718f02fd645"
+			"Rev": "589611106e7b0401825dff56cf64cfe76554bd51"
 		},
 		{
 			"ImportPath": "github.com/xrash/smetrics",
