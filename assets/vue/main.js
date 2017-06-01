@@ -212,7 +212,7 @@ var app = new Vue({
         request = JSON.stringify(request)
 
         $.ajax({
-          url: 'api/songMatches',
+          url: 'api/artistMatches',
           type: 'POST',
           dataType: 'json',
           data: request
@@ -223,8 +223,10 @@ var app = new Vue({
       }
     },
     syncSuggestions: function (useTitle, event) {
+      // What the user entered in the box
       var s = event.target.value
       var match = null
+      // Go through all the suggestions and see if something matched
       for (var item in this.suggestions) {
         if (useTitle && s === this.suggestions[item].Title + 
                         " - " + 

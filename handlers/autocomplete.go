@@ -66,10 +66,9 @@ func autocomplete(req matchRequest, useTitles bool) (matchResponse, error) {
 	songs.Songs = make(map[lastFm.BaseSong]bool)
 	err := lastFm.ReadCachedUniqueSongs(req.UserID, &songs)
 	if err != nil {
-		fmt.Println(err.Error())
 		return matchResponse{}, err
 	}
-	matches := bestMatches(req.S, songs.Songs, 10, true)
+	matches := bestMatches(req.S, songs.Songs, 10, useTitles)
 	return matches, nil
 }
 

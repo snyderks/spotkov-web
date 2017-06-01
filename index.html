@@ -36,7 +36,7 @@
             <span class="form-el">
               <label class="text-input-label" for="artist-name">Artist</label>
               <input type="text" class="text-input artist-name" name="artist-name" v-model="artistName" 
-               v-on:keyup="autocompleteArtist" list="artists" v-on:input="syncSuggestions(true, $event)"/>
+               v-on:keyup="autocompleteArtist" list="artists" v-on:input="syncSuggestions(false, $event)"/>
               <datalist id="artists" v-bind:suggestions="suggestions">
                 <option v-for="item in suggestions">{{item.Artist}} - {{item.Title}}</option>
               </datalist>
