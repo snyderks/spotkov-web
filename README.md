@@ -9,6 +9,8 @@ Spotkov takes your play history in Last.FM and creates a playlist starting with 
 Please send feedback to [here](mailto:snyderkristian@gmail.com)
 
 # Roadmap
+## 2.0 - MVP Features
+Completed!
 ## 1.1 - Heroku
 Completed!
 ## 1.0 - completed
