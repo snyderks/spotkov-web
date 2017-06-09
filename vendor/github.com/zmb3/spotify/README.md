@@ -99,6 +99,14 @@ omits optional parameters and uses reasonable defaults, and a more sophisticated
 version that accepts additional parameters.  The latter is suffixed with `Opt`
 to indicate that it accepts some optional parameters.
 
+### Automatic Retries
+
+The API will throttle your requests if you are sending them too rapidly. This client can automatically wait and reattempt the request, but this does not happen automatically. To enable this, set the `AutoRetry` field on the `Client` struct to `true`.
+
+For more information, see Spotify [rate-limits](https://developer.spotify.com/web-api/user-guide/#rate-limiting).
+
 ## API Examples
 
 Examples of the API can be found in the [examples](examples) directory.
+
+You may find tools such as [Spotify's Web API Console](https://developer.spotify.com/web-api/console/) or [Rapid API](https://rapidapi.com/package/SpotifyPublicAPI/functions?utm_source=SpotifyGitHub&utm_medium=button&utm_content=Vendor_GitHub) valuable for experimenting with the API.

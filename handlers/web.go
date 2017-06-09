@@ -43,6 +43,13 @@ type spotifyPlaylistCreation struct {
 	Songs        []lastFm.Song `json:"songs"`
 }
 
+// SpotifyResponse is returned on successful interactions with the API
+// that are associated with Spotify. Contains a currently valid
+// (read: not expired) token for the user.
+type SpotifyResponse struct {
+	Token oauth2.Token `json:"token"`
+}
+
 // friendlyError is used to write back to the web client what went wrong
 // in processing so more detailed errors can be sent.
 type friendlyError struct {

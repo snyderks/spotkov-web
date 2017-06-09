@@ -1,7 +1,6 @@
 package spotify
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -64,18 +63,14 @@ func GetUsersPublicProfile(userID ID) (*User, error) {
 // Spotify User.  It does not require authentication.
 func (c *Client) GetUsersPublicProfile(userID ID) (*User, error) {
 	spotifyURL := baseAddress + "users/" + string(userID)
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var user User
-	err = json.NewDecoder(resp.Body).Decode(&user)
+
+	err := c.get(spotifyURL, &user)
 	if err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 
@@ -92,19 +87,13 @@ func (c *Client) GetUsersPublicProfile(userID ID) (*User, error) {
 // This email address is unverified - do not assume that Spotify has
 // checked that the email address actually belongs to the user.
 func (c *Client) CurrentUser() (*PrivateUser, error) {
-	resp, err := c.http.Get(baseAddress + "me")
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
 	var result PrivateUser
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(baseAddress+"me", &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -133,39 +122,53 @@ func (c *Client) CurrentUsersTracksOpt(opt *Options) (*SavedTrackPage, error) {
 			spotifyURL += "?" + params
 		}
 	}
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var result SavedTrackPage
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
-// Follow adds the current user as a follower of one or more
-// artists or other spotify users, identified by their Spotify IDs.
+// FollowUser adds the current user as a follower of one or more
+// spotify users, identified by their Spotify IDs.
 // This call requires authorization.
 //
 // Modifying the lists of artists or users the current user follows
 // requires that the application has the ScopeUserFollowModify scope.
-func (c *Client) Follow(ids ...ID) error {
-	return c.modifyFollowers(true, ids...)
+func (c *Client) FollowUser(ids ...ID) error {
+	return c.modifyFollowers("user", true, ids...)
 }
 
-// Unfollow removes the current user as a follower of one or more
-// artists or other Spotify users.  This call requires authorization.
+// FollowArtist adds the current user as a follower of one or more
+// spotify artists, identified by their Spotify IDs.
+// This call requires authorization.
 //
 // Modifying the lists of artists or users the current user follows
 // requires that the application has the ScopeUserFollowModify scope.
-func (c *Client) Unfollow(ids ...ID) error {
-	return c.modifyFollowers(false, ids...)
+func (c *Client) FollowArtist(ids ...ID) error {
+	return c.modifyFollowers("artist", true, ids...)
+}
+
+// UnfollowUser removes the current user as a follower of one or more
+// Spotify users.  This call requires authorization.
+//
+// Modifying the lists of artists or users the current user follows
+// requires that the application has the ScopeUserFollowModify scope.
+func (c *Client) UnfollowUser(ids ...ID) error {
+	return c.modifyFollowers("user", false, ids...)
+}
+
+// UnfollowArtist removes the current user as a follower of one or more
+// Spotify artists.  This call requires authorization.
+//
+// Modifying the lists of artists or users the current user follows
+// requires that the application has the ScopeUserFollowModify scope.
+func (c *Client) UnfollowArtist(ids ...ID) error {
+	return c.modifyFollowers("artist", false, ids...)
 }
 
 // CurrentUserFollows checks to see if the current user is following
@@ -187,27 +190,25 @@ func (c *Client) CurrentUserFollows(t string, ids ...ID) ([]bool, error) {
 	}
 	spotifyURL := fmt.Sprintf("%sme/following/contains?type=%s&ids=%s",
 		baseAddress, t, strings.Join(toStringSlice(ids), ","))
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var result []bool
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }
 
-func (c *Client) modifyFollowers(follow bool, ids ...ID) error {
+func (c *Client) modifyFollowers(usertype string, follow bool, ids ...ID) error {
 	if l := len(ids); l == 0 || l > 50 {
 		return errors.New("spotify: Follow/Unfollow supports 1 to 50 IDs")
 	}
-	spotifyURL := baseAddress + "me/following?" + strings.Join(toStringSlice(ids), ",")
+	v := url.Values{}
+	v.Add("type", usertype)
+	v.Add("ids", strings.Join(toStringSlice(ids), ","))
+	spotifyURL := baseAddress + "me/following?" + v.Encode()
 	method := "PUT"
 	if !follow {
 		method = "DELETE"
@@ -216,13 +217,9 @@ func (c *Client) modifyFollowers(follow bool, ids ...ID) error {
 	if err != nil {
 		return err
 	}
-	resp, err := c.http.Do(req)
+	err = c.execute(req, nil, http.StatusNoContent)
 	if err != nil {
 		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusNoContent {
-		return decodeError(resp.Body)
 	}
 	return nil
 }
@@ -241,8 +238,9 @@ func (c *Client) CurrentUsersFollowedArtists() (*FullArtistCursorPage, error) {
 // wish to specify either of the parameters, use -1 for limit and the empty
 // string for after.
 func (c *Client) CurrentUsersFollowedArtistsOpt(limit int, after string) (*FullArtistCursorPage, error) {
-	spotifyURL := baseAddress + "me/following?type=artist"
+	spotifyURL := baseAddress + "me/following"
 	v := url.Values{}
+	v.Set("type", "artist")
 	if limit != -1 {
 		v.Set("limit", strconv.Itoa(limit))
 	}
@@ -252,21 +250,16 @@ func (c *Client) CurrentUsersFollowedArtistsOpt(limit int, after string) (*FullA
 	if params := v.Encode(); params != "" {
 		spotifyURL += "?" + params
 	}
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var result struct {
 		A FullArtistCursorPage `json:"artists"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result.A, nil
 }
 
@@ -295,19 +288,14 @@ func (c *Client) CurrentUsersAlbumsOpt(opt *Options) (*SavedAlbumPage, error) {
 			spotifyURL += "?" + params
 		}
 	}
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var result SavedAlbumPage
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }
 
@@ -337,18 +325,13 @@ func (c *Client) CurrentUsersPlaylistsOpt(opt *Options) (*SimplePlaylistPage, er
 			spotifyURL += "?" + params
 		}
 	}
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var result SimplePlaylistPage
-	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }

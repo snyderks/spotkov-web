@@ -62,19 +62,19 @@
 		},
 		{
 			"ImportPath": "github.com/zmb3/spotify",
-			"Rev": "7c329e568850060851710e4cfecc3aa70c56ddf7"
+			"Rev": "9ad73bbd6efc68ade60e0c80ea3aa418611aaa51"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "8b4af36cd21a1f85a7484b49feb7c79363106d8e"
+			"Rev": "59a0b19b5533c7977ddeb86b017bf507ed407b12"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
-			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
+			"Rev": "f047394b6d14284165300fd82dad67edb3a4d7f6"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2/internal",
-			"Rev": "1e695b1c8febf17aad3bfa7bf0a819ef94b98ad5"
+			"Rev": "f047394b6d14284165300fd82dad67edb3a4d7f6"
 		}
 	]
 }

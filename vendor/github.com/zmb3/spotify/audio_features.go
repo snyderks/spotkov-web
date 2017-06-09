@@ -1,8 +1,8 @@
 package spotify
 
 import (
-	"encoding/json"
-	"net/http"
+	"fmt"
+	"strings"
 )
 
 // AudioFeatures contains various high-level acoustic attributes
@@ -28,7 +28,7 @@ type AudioFeatures struct {
 	// and noisy.
 	Energy float32 `json:"energy"`
 	// The Spotify ID for the track.
-	ID ID `json:id`
+	ID ID `json:"id"`
 	// Predicts whether a track contains no vocals.  "Ooh" and "aah" sounds are
 	// treated as instrumental in this context.  Rap or spoken words are clearly
 	// "vocal".  The closer the Instrumentalness value is to 1.0, the greater
@@ -109,21 +109,16 @@ const (
 // is not found, a nil value is returned in the appropriate position.
 // This call requires authorization.
 func (c *Client) GetAudioFeatures(ids ...ID) ([]*AudioFeatures, error) {
-	url := baseAddress + "audio-features"
-	resp, err := c.http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+	url := fmt.Sprintf("%saudio-features?ids=%s", baseAddress, strings.Join(toStringSlice(ids), ","))
+
 	temp := struct {
 		F []*AudioFeatures `json:"audio_features"`
 	}{}
-	err = json.NewDecoder(resp.Body).Decode(&temp)
+
+	err := c.get(url, &temp)
 	if err != nil {
 		return nil, err
 	}
+
 	return temp.F, nil
 }

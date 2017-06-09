@@ -95,7 +95,26 @@ func postPlaylistToSpotify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	spotifyPlaylistGenerator.CreatePlaylist(req.Songs, &client, user.ID)
-	w.WriteHeader(200)
+	// If this succeeded, need to return the token used to authorize the request.
+	tok, err := client.Token()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		// Currently want to return a 200, since it's not required
+		// that the token be returned and the request technically
+		// was successful.
+		w.WriteHeader(200)
+		return
+	}
+	resp := SpotifyResponse{*tok}
+	b, err := json.Marshal(resp)
+	if err != nil {
+		fmt.Println(err.Error())
+		// Return successfully here too.
+		w.WriteHeader(200)
+		return
+	}
+	w.Write(b)
 }
 
 func spotifyUserHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,10 +1,12 @@
 package spotify
 
 import (
+	"crypto/tls"
 	"errors"
 	"net/http"
 	"os"
 
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
@@ -38,7 +40,7 @@ const (
 	// ScopeUserFollowRead seeks read access to the list of
 	// artists and other users that a user follows.
 	ScopeUserFollowRead = "user-follow-read"
-	// ScopeUserLibraryModify seeks write/delete acess to a
+	// ScopeUserLibraryModify seeks write/delete access to a
 	// user's "Your Music" library.
 	ScopeUserLibraryModify = "user-library-modify"
 	// ScopeUserLibraryRead seeks read access to a user's "Your Music" library.
@@ -50,6 +52,14 @@ const (
 	ScopeUserReadEmail = "user-read-email"
 	// ScopeUserReadBirthdate seeks read access to a user's birthdate.
 	ScopeUserReadBirthdate = "user-read-birthdate"
+	// ScopeUserReadCurrentlyPlaying seeks read access to a user's currently playing track
+	ScopeUserReadCurrentlyPlaying = "user-read-currently-playing"
+	// ScopeUserReadPlaybackState seeks read access to the user's current playback state
+	ScopeUserReadPlaybackState = "user-read-playback-state"
+	// ScopeUserModifyPlaybackState seeks write access to the user's current playback state
+	ScopeUserModifyPlaybackState = "user-modify-playback-state"
+	// ScopeUserReadRecentlyPlayed allows access to a user's recently-played songs
+	ScopeUserReadRecentlyPlayed = "user-read-recently-played"
 )
 
 // Authenticator provides convenience functions for implementing the OAuth2 flow.
@@ -66,7 +76,8 @@ const (
 //     client := a.NewClient(token)
 //
 type Authenticator struct {
-	config *oauth2.Config
+	config  *oauth2.Config
+	context context.Context
 }
 
 // NewAuthenticator creates an authenticator which is used to implement the
@@ -88,8 +99,15 @@ func NewAuthenticator(redirectURL string, scopes ...string) Authenticator {
 			TokenURL: TokenURL,
 		},
 	}
+
+	// disable HTTP/2 for DefaultClient, see: https://github.com/zmb3/spotify/issues/20
+	tr := &http.Transport{
+		TLSNextProto: map[string]func(authority string, c *tls.Conn) http.RoundTripper{},
+	}
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{Transport: tr})
 	return Authenticator{
-		config: cfg,
+		config:  cfg,
+		context: ctx,
 	}
 }
 
@@ -125,18 +143,33 @@ func (a Authenticator) Token(state string, r *http.Request) (*oauth2.Token, erro
 	if actualState != state {
 		return nil, errors.New("spotify: redirect state parameter doesn't match")
 	}
-	return a.config.Exchange(oauth2.NoContext, code)
+	return a.config.Exchange(a.context, code)
 }
 
 // Exchange is like Token, except it allows you to manually specify the access
 // code instead of pulling it out of an HTTP request.
 func (a Authenticator) Exchange(code string) (*oauth2.Token, error) {
-	return a.config.Exchange(oauth2.NoContext, code)
+	return a.config.Exchange(a.context, code)
 }
 
 // NewClient creates a Client that will use the specified access token for its API requests.
 func (a Authenticator) NewClient(token *oauth2.Token) Client {
+	client := a.config.Client(a.context, token)
 	return Client{
-		http: a.config.Client(oauth2.NoContext, token),
+		http: client,
 	}
+}
+
+// Token gets the client's current token.
+func (c *Client) Token() (*oauth2.Token, error) {
+	transport, ok := c.http.Transport.(*oauth2.Transport)
+	if !ok {
+		return nil, errors.New("spotify: oauth2 transport type not correct")
+	}
+	t, err := transport.Source.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }

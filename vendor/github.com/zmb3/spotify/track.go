@@ -1,9 +1,8 @@
 package spotify
 
 import (
-	"encoding/json"
 	"errors"
-	"net/http"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -34,6 +33,10 @@ type SimpleTrack struct {
 	// DiscNumber.
 	TrackNumber int `json:"track_number"`
 	URI         URI `json:"uri"`
+}
+
+func (st SimpleTrack) String() string {
+	return fmt.Sprintf("TRACK<[%s] [%s]>", st.ID, st.Name)
 }
 
 // FullTrack provides extra track data in addition to what is provided by SimpleTrack.
@@ -87,19 +90,14 @@ func GetTrack(id ID) (*FullTrack, error) {
 // a single track identified by its unique Spotify ID.
 func (c *Client) GetTrack(id ID) (*FullTrack, error) {
 	spotifyURL := baseAddress + "tracks/" + string(id)
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+
 	var t FullTrack
-	err = json.NewDecoder(resp.Body).Decode(&t)
+
+	err := c.get(spotifyURL, &t)
 	if err != nil {
 		return nil, err
 	}
+
 	return &t, nil
 }
 
@@ -118,21 +116,15 @@ func (c *Client) GetTracks(ids ...ID) ([]*FullTrack, error) {
 		return nil, errors.New("spotify: FindTracks supports up to 50 tracks")
 	}
 	spotifyURL := baseAddress + "tracks?ids=" + strings.Join(toStringSlice(ids), ",")
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
 
 	var t struct {
 		Tracks []*FullTrack `jsosn:"tracks"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&t)
+
+	err := c.get(spotifyURL, &t)
 	if err != nil {
-		return nil, errors.New("spotify:  couldn't decode tracks")
+		return nil, err
 	}
+
 	return t.Tracks, nil
 }
