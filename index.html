@@ -6,13 +6,17 @@
   <meta name="description" content="A playlist generator for Spotify using your song history in Last.FM." />
   <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
 
-  
+
 </head>
+
 <body>
   <div id="app">
-    <header class="header"><h1 class="header-text">Spotkov</h1></header>
+    <header class="header">
+      <h1 class="header-text">Spotkov</h1>
+    </header>
     <div class="main">
-      <h3 class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from your listening history.</h3>
+      <h3 class="welcome-message">Spotkov is a playlist generator. It uses your Last.FM profile to generate a list of songs you'll like together from
+        your listening history.</h3>
       <div v-cloak v-show="!loggedIn">
         <div class="welcome-prompt">Get started by logging in to Spotify:</div>
         <spotify-login></spotify-login>
@@ -30,7 +34,9 @@
               <input type="text" class="text-input song-name" name="song-name" v-model="songName"
                v-on:keyup="autocompleteSong" list="titles" v-on:input="syncSuggestions(true, $event)"/>
               <datalist id="titles" v-bind:suggestions="suggestions">
-                <option v-for="item in suggestions">{{item.Title}} - {{item.Artist}}</option>
+                <select style="display: none;"><!-- Preserves options in IEX -->
+                  <option v-for="item in suggestions">{{item.Title}} - {{item.Artist}}</option>
+                </select>
               </datalist>
             </span>
             <span class="form-el">
@@ -38,7 +44,9 @@
               <input type="text" class="text-input artist-name" name="artist-name" v-model="artistName" 
                v-on:keyup="autocompleteArtist" list="artists" v-on:input="syncSuggestions(false, $event)"/>
               <datalist id="artists" v-bind:suggestions="suggestions">
-                <option v-for="item in suggestions">{{item.Artist}} - {{item.Title}}</option>
+                <select style="display: none;"><!-- Preserves options in IEX -->
+                  <option v-for="item in suggestions">{{item.Artist}} - {{item.Title}}</option>
+                </select>
               </datalist>
             </span>
             <span class="form-el">
@@ -49,7 +57,7 @@
           <div>
             <span class="form-el slider-input">
               <label for="length">Length: </label><span v-bind:songLabel="songLabel">{{ length }} {{ songLabel }}</span>
-              <input type="range" class="slider" name="length" v-model="length" min="1" max="200" step="1" />
+            <input type="range" class="slider" name="length" v-model="length" min="1" max="200" step="1" />
             </span>
           </div>
           <div>
@@ -62,7 +70,7 @@
             <div class="bounce3"></div>
           </div>
         </div>
-          <button class="btn gen-btn" v-if="playlistGenerated" v-on:click="createPlaylist">Upload to Spotify</button>
+        <button class="btn gen-btn" v-if="playlistGenerated" v-on:click="createPlaylist">Upload to Spotify</button>
         <table class="gen-songs" v-bind:songs="songs" v-if="songs.length > 0">
           <thead>
             <th></th>
@@ -83,8 +91,7 @@
           <button class="btn" v-on:click="toggleInstructAnswer">How does this work?</button>
         </div>
         <div class="instruct-answer">
-          You can use Spotkov if you <a href="https://support.spotify.com/us/using_spotify/share_music/scrobble-to-last-fm/">scrobble</a>
-          your Spotify playback to Last.fm. 
+          You can use Spotkov if you <a href="https://support.spotify.com/us/using_spotify/share_music/scrobble-to-last-fm/">scrobble</a>          your Spotify playback to Last.fm.
           <ol class="centered-list">
             <li>Log in to Spotify above.</li>
             <li>Next, enter a song title and artist to start with and your Last.fm username.</li>
@@ -94,22 +101,24 @@
         </div>
       </div>
     </div>
-    <div class="push"></div> <!-- Pushes the body up above the footer -->
+    <div class="push"></div>
+    <!-- Pushes the body up above the footer -->
   </div>
   <footer>
-      <div class="footer-left">
-        Made by <a class="footer-link" href="http://kristiansnyder.com">Kristian Snyder</a>
-      </div>
-      <div class="footer-right">
-        <a class="footer-link" href="https://github.com/snyderks/spotkov-web">View on Github
+    <div class="footer-left">
+      Made by <a class="footer-link" href="http://kristiansnyder.com">Kristian Snyder</a>
+    </div>
+    <div class="footer-right">
+      <a class="footer-link" href="https://github.com/snyderks/spotkov-web">View on Github
           <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><title>  mark-github</title><g id="Octicons" style="fill:none;stroke-width:1;stroke:none"><g id="mark-github" fill="#000"><path d="M8 0C3.6 0 0 3.6 0 8 0 11.5 2.3 14.5 5.5 15.6 5.9 15.7 6 15.4 6 15.2 6 15 6 14.4 6 13.7 4 14.1 3.5 13.2 3.3 12.8 3.2 12.6 2.8 11.8 2.5 11.7 2.2 11.5 1.8 11.1 2.5 11.1 3.1 11.1 3.6 11.7 3.7 11.9 4.4 13.2 5.6 12.8 6.1 12.6 6.1 12.1 6.3 11.7 6.6 11.5 4.8 11.3 2.9 10.6 2.9 7.6 2.9 6.7 3.2 6 3.7 5.4 3.7 5.2 3.4 4.4 3.8 3.3 3.8 3.3 4.5 3.1 6 4.1 6.7 4 7.3 3.9 8 3.9 8.7 3.9 9.4 4 10 4.1 11.6 3.1 12.2 3.3 12.2 3.3 12.7 4.4 12.4 5.2 12.3 5.4 12.8 6 13.1 6.7 13.1 7.6 13.1 10.7 11.3 11.3 9.5 11.5 9.8 11.8 10 12.3 10 13 10 14.1 10 14.9 10 15.2 10 15.4 10.2 15.7 10.6 15.6 13.7 14.5 16 11.5 16 8 16 3.6 12.4 0 8 0L8 0Z" id="Shape"/></g></g></svg></a>
-      </div>
+    </div>
   </footer>
 </body>
-<script src="https://code.jquery.com/jquery-3.1.1.js"
-  integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-  crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous">
+
 </script>
+<script src="assets/js/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
 <script src="assets/vue/jquery.timer.js"></script>
 <script src="assets/vue/main.js"></script>
+<script src="assets/js/autocomplete.js"></script>
