@@ -1,15 +1,3 @@
-// Get jQuery to create a datalist imitation.
-var createJSDatalist = function(items, tagName) {
-  $(tagName).autocomplete({
-    source: items,
-    select: function(event, ui) {
-      $(tagName).val(ui.item.label);
-
-      return false;
-    }
-  });
-};
-
 var retrieveToken = function() {
   var token = null;
   if (localStorage.getItem("access_token") !== null) {
