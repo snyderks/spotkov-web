@@ -4,6 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spotkov</title>
   <meta name="description" content="A playlist generator for Spotify using your song history in Last.FM." />
+
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery-ui.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery-ui.structure.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery-ui.theme.min.css">
   <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
 
 
@@ -30,32 +34,40 @@
         <div class="creation-form">
           <div>
             <span class="form-el">
+              <!-- Song input -->
               <label class="text-input-label" for="song-name">Song</label>
-              <input type="text" class="text-input song-name" name="song-name" v-model="songName"
-               v-on:keyup="autocompleteSong" list="titles" v-on:input="syncSuggestions(true, $event)"/>
-              <datalist id="titles" v-bind:suggestions="suggestions">
-                <select style="display: none;"><!-- Preserves options in IEX -->
+              <input type="text" class="text-input song-name" name="song-name" id="song-name" v-model="songName"
+               v-on:keyup="autocompleteSong"
+               v-on:input="syncSuggestions(true, $event.target.value)"
+               list="titles"/>
+              <datalist v-if="nativeDatalist" id="titles" v-bind:suggestions="suggestions">
+                <select style="display: none;">
                   <option v-for="item in suggestions">{{item.Title}} - {{item.Artist}}</option>
                 </select>
               </datalist>
             </span>
             <span class="form-el">
+              <!-- Artist input -->
               <label class="text-input-label" for="artist-name">Artist</label>
-              <input type="text" class="text-input artist-name" name="artist-name" v-model="artistName" 
-               v-on:keyup="autocompleteArtist" list="artists" v-on:input="syncSuggestions(false, $event)"/>
-              <datalist id="artists" v-bind:suggestions="suggestions">
-                <select style="display: none;"><!-- Preserves options in IEX -->
+              <input type="text" class="text-input artist-name" name="artist-name" id="artist-name" v-model="artistName" 
+               v-on:keyup="autocompleteArtist"
+               v-on:input="syncSuggestions(false, $event.target.value)" 
+               list="artists"/>
+               <datalist v-if="nativeDatalist" id="artists" v-bind:suggestions="suggestions">
+                <select style="display: none;">
                   <option v-for="item in suggestions">{{item.Artist}} - {{item.Title}}</option>
                 </select>
-              </datalist>
+              </datalist> 
             </span>
             <span class="form-el">
+              <!-- Username input -->
               <label class="text-input-label" for="last-fm-id">Last.FM Username</label>
               <input type="text" class="text-input last-fm-id" name="last-fm-id" v-model="lastFMID" />
             </span>
           </div>
           <div>
             <span class="form-el slider-input">
+              <!-- Length input -->
               <label for="length">Length: </label><span v-bind:songLabel="songLabel">{{ length }} {{ songLabel }}</span>
             <input type="range" class="slider" name="length" v-model="length" min="1" max="200" step="1" />
             </span>
@@ -117,8 +129,8 @@
 <script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous">
 
 </script>
+<script src="assets/js/jquery-3.2.1.js"></script>
 <script src="assets/js/jquery-ui.min.js"></script>
 <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
 <script src="assets/vue/jquery.timer.js"></script>
 <script src="assets/vue/main.js"></script>
-<script src="assets/js/autocomplete.js"></script>

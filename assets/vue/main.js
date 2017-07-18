@@ -1,3 +1,15 @@
+// Get jQuery to create a datalist imitation.
+var createJSDatalist = function(items, tagName) {
+  $(tagName).autocomplete({
+    source: items,
+    select: function(event, ui) {
+      $(tagName).val(ui.item.label);
+
+      return false;
+    }
+  });
+};
+
 var retrieveToken = function() {
   var token = null;
   if (localStorage.getItem("access_token") !== null) {
@@ -54,19 +66,23 @@ var app = new Vue({
   el: "#app",
   data: {
     songs: [],
-    songName: localStorage.getItem("songName") === null
-      ? ""
-      : localStorage.getItem("songName"),
-    artistName: localStorage.getItem("artistName") === null
-      ? ""
-      : localStorage.getItem("artistName"),
-    lastFMID: localStorage.getItem("lastFMID") === null
-      ? ""
-      : localStorage.getItem("lastFMID"),
+    songName:
+      localStorage.getItem("songName") === null
+        ? ""
+        : localStorage.getItem("songName"),
+    artistName:
+      localStorage.getItem("artistName") === null
+        ? ""
+        : localStorage.getItem("artistName"),
+    lastFMID:
+      localStorage.getItem("lastFMID") === null
+        ? ""
+        : localStorage.getItem("lastFMID"),
     suggestions: [],
-    length: localStorage.getItem("length") === null
-      ? "20"
-      : localStorage.getItem("length"),
+    length:
+      localStorage.getItem("length") === null
+        ? "20"
+        : localStorage.getItem("length"),
     error: "",
     message: "",
     activity: false
@@ -80,6 +96,12 @@ var app = new Vue({
     },
     playlistGenerated: function() {
       return this.songs.length > 0;
+    },
+    nativeDatalist: function() {
+      return (
+        !!("list" in document.createElement("input")) &&
+        !!(document.createElement("datalist") && window.HTMLDataListElement)
+      );
     }
   },
   methods: {
@@ -218,6 +240,22 @@ var app = new Vue({
           "You're currently not logged in to Spotify. Log in and try again.";
       }
     },
+    createJSDatalist: function(items, tagName, useTitle) {
+      var comp = this;
+      $(tagName).autocomplete({
+        source: items,
+        select: function(event, ui) {
+          $(tagName).val(ui.item.value);
+          if (useTitle) {
+            comp.songName = ui.item.value;
+          } else {
+            comp.artistName = ui.item.value;
+          }
+          comp.syncSuggestions(useTitle, ui.item.label);
+          return false;
+        }
+      });
+    },
     autocompleteSong: function() {
       var comp = this;
       // don't do anything if the user doesn't have an ID entered
@@ -235,6 +273,21 @@ var app = new Vue({
           data: request
         }).done(function(data) {
           comp.suggestions = data.matches;
+
+          // Generate the autocomplete only if the browser
+          // doesn't have datalist.
+          if (data.matches !== null && !comp.nativeDatalist) {
+            var list = data.matches.map(function(el) {
+              return {
+                label: el.Title + " - " + el.Artist,
+                value: el.Title
+              };
+            });
+            list = list.filter(function(item, pos) {
+              return list.indexOf(item) == pos;
+            });
+            comp.createJSDatalist(list, "#song-name", true);
+          }
         });
       }
     },
@@ -255,12 +308,27 @@ var app = new Vue({
           data: request
         }).done(function(data) {
           comp.suggestions = data.matches;
+
+          // Generate the autocomplete only if the browser
+          // doesn't have datalist.
+          if (data.matches !== null && !comp.nativeDatalist) {
+            var list = data.matches.map(function(el) {
+              return {
+                label: el.Artist + " - " + el.Title,
+                value: el.Artist
+              };
+            });
+            list = list.filter(function(item, pos) {
+              return list.indexOf(item) == pos;
+            });
+            comp.createJSDatalist(list, "#artist-name", false);
+          }
         });
       }
     },
-    syncSuggestions: function(useTitle, event) {
+    syncSuggestions: function(useTitle, value) {
       // What the user entered in the box
-      var s = event.target.value;
+      var s = value;
       var match = null;
       // Go through all the suggestions and see if something matched
       for (var item in this.suggestions) {

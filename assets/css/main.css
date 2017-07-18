@@ -1,5 +1,6 @@
 /* Main containers */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
 }
@@ -16,7 +17,7 @@ body {
 #app {
   max-width: 1000px;
   padding: 10px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: #121212;
   font-size: 1.6em;
   min-height: 100%;
@@ -25,7 +26,8 @@ body {
   margin: 0 auto -3.5em;
 }
 
-footer, .push {
+footer,
+.push {
   height: 3.5em;
 }
 
@@ -41,7 +43,7 @@ footer {
 
 header {
   text-align: center;
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid #ddd;
   margin-bottom: 30px;
 }
 
@@ -52,7 +54,7 @@ header {
 
 hr {
   border: none;
-  background-color: #DDD;
+  background-color: #ddd;
   height: 1px;
   width: 100%;
   margin: 1em auto;
@@ -69,18 +71,19 @@ hr {
 */
 .btn {
   background-color: transparent;
-  color: #3374FF;
-  border: 1px solid #3374FF;
+  color: #3374ff;
+  border: 1px solid #3374ff;
   padding: 0.6em;
   font-size: 1em;
   border-radius: 3px;
   margin: 0.3em;
 }
 
-.btn:hover, .btn:focus {
+.btn:hover,
+.btn:focus {
   background-color: #6093ff;
   border-color: #6093ff;
-  color: #FFF;
+  color: #fff;
   cursor: pointer;
   outline: none;
 }
@@ -104,7 +107,7 @@ hr {
 .error {
   text-align: center;
   background-color: #f24343;
-  color: #FFF;
+  color: #fff;
   border-radius: 3px;
   padding: 10px;
   margin-left: auto;
@@ -123,7 +126,7 @@ hr {
 }
 
 .footer-link:hover {
-  color: #3374FF;
+  color: #3374ff;
 }
 
 .footer-right {
@@ -161,13 +164,14 @@ hr {
   width: 1; /* Pushes the width of the number to be as small as possible */
 }
 
-.gen-songs td, .gen-songs th {
+.gen-songs td,
+.gen-songs th {
   padding: 7px 15px;
   vertical-align: middle;
 }
 
 .gen-song-row:nth-child(even) {
-  background-color: #EEE;
+  background-color: #eee;
 }
 
 .github-icon {
@@ -197,11 +201,11 @@ hr {
   margin: 0.3em;
   margin-top: 14px;
   background-color: transparent;
-  border: 2px solid #DDD;
+  border: 2px solid #ddd;
 }
 
 .text-input:focus {
-  border-color: #9EC2F0;
+  border-color: #9ec2f0;
   outline-color: transparent;
   outline: none;
   box-shadow: none;
@@ -221,6 +225,10 @@ hr {
 
 .th-left {
   text-align: left;
+}
+
+.ui-widget {
+  font-size: 1.5em;
 }
 
 [v-cloak] {
@@ -273,7 +281,7 @@ hr {
 .spinner > div {
   width: 18px;
   height: 18px;
-  background-color: #3374FF;
+  background-color: #3374ff;
 
   border-radius: 100%;
   display: inline-block;
@@ -292,7 +300,9 @@ hr {
 }
 
 @-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     -webkit-transform: scale(0);
   }
   40% {
@@ -301,7 +311,9 @@ hr {
 }
 
 @keyframes sk-bouncedelay {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     -webkit-transform: scale(0);
     transform: scale(0);
   }
