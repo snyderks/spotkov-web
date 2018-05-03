@@ -42,7 +42,7 @@
                list="titles"/>
               <datalist v-if="nativeDatalist" id="titles" v-bind:suggestions="suggestions">
                 <select style="display: none;">
-                  <option v-for="item in suggestions">{{item.Title}} - {{item.Artist}}</option>
+                  <option v-for="item in suggestions" :value="item.Title + ' - ' + item.Artist"></option>
                 </select>
               </datalist>
             </span>
@@ -55,7 +55,7 @@
                list="artists"/>
                <datalist v-if="nativeDatalist" id="artists" v-bind:suggestions="suggestions">
                 <select style="display: none;">
-                  <option v-for="item in suggestions">{{item.Artist}} - {{item.Title}}</option>
+                  <option v-for="item in suggestions" :value="item.Artist + ' - ' + item.Title"></option>
                 </select>
               </datalist> 
             </span>
