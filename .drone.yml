@@ -7,5 +7,5 @@ steps:
   commands:
   - go get -t -d ./...
   - go build
-  - go test -short
+  - go test -short ./...
       
