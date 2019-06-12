@@ -5,7 +5,7 @@ steps:
 - name: build
   image: golang
   commands:
-  - go get -u
+  - go get -t -d ./...
   - go build
   - go test -short
       
